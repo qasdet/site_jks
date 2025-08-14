@@ -1,0 +1,39 @@
+{% macro render_post(post, level=0) %}
+<div class="post" id="post-{{ post.id }}" style="margin-left: {{ level * 30 }}px;">
+    {% if level > 0 %}
+        <div class="reply-indicator">
+            <span>↳</span> Ответ на сообщение
+        </div>
+    {% endif %}
+    <div class="post-header">
+        <div class="post-author">{{ post.user.username }}</div>
+        <div class="post-date">{{ post.created_at.strftime('%d.%m.%Y %H:%M') }}</div>
+    </div>
+    <div class="post-content">{{ post.content }}</div>
+    <div class="post-actions">
+        {% if current_user.is_authenticated %}
+            <a href="{{ url_for('forum.reply_to_post', post_id=post.id) }}" class="reply-btn">
+                <span>💬</span>Ответить
+            </a>
+        {% endif %}
+        {% if current_user.is_authenticated and post.user_id == current_user.id %}
+            <a href="{{ url_for('forum.edit_post', post_id=post.id) }}" class="edit-btn">
+                <span>✏️</span>Изменить
+            </a>
+            <a href="#" onclick="deletePost({{ post.id }})" class="delete-btn">
+                <span>🗑️</span>Удалить
+            </a>
+        {% endif %}
+    </div>
+    
+    {% if post.replies %}
+        <div class="replies">
+            {% for reply in post.replies %}
+                {{ render_post(reply, level + 1) }}
+            {% endfor %}
+        </div>
+    {% endif %}
+</div>
+{% endmacro %}
+
+{{ render_post(post) }} 

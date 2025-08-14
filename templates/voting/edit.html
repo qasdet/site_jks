@@ -1,0 +1,316 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Редактировать голосование - Система голосования</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f5f5f5;
+            margin: 0;
+            padding: 20px;
+        }
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        h1 {
+            color: #333;
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        .form-group {
+            margin-bottom: 20px;
+        }
+        label {
+            display: block;
+            margin-bottom: 5px;
+            color: #555;
+            font-weight: bold;
+        }
+        input[type="text"], textarea, input[type="datetime-local"] {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-size: 16px;
+            box-sizing: border-box;
+            font-family: Arial, sans-serif;
+        }
+        textarea {
+            min-height: 100px;
+            resize: vertical;
+        }
+        .options-container {
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            padding: 15px;
+            background-color: #f8f9fa;
+        }
+        .option-input {
+            display: flex;
+            margin-bottom: 10px;
+            align-items: center;
+        }
+        .option-input input {
+            flex: 1;
+            margin-right: 10px;
+        }
+        .option-input button {
+            padding: 8px 12px;
+            background-color: #dc3545;
+            color: white;
+            border: none;
+            border-radius: 3px;
+            cursor: pointer;
+        }
+        .option-input button:hover {
+            background-color: #c82333;
+        }
+        .add-option-btn {
+            padding: 8px 16px;
+            background-color: #28a745;
+            color: white;
+            border: none;
+            border-radius: 3px;
+            cursor: pointer;
+            margin-top: 10px;
+        }
+        .add-option-btn:hover {
+            background-color: #218838;
+        }
+        .btn-group {
+            text-align: center;
+            margin-top: 30px;
+        }
+        button[type="submit"] {
+            padding: 12px 30px;
+            font-size: 16px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            margin: 0 10px;
+            background-color: #007bff;
+            color: white;
+        }
+        button[type="submit"]:hover {
+            background-color: #0056b3;
+        }
+        .nav-links {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        .nav-links a, button[type="submit"], .add-option-btn, .option-input button {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            min-width: 110px;
+            justify-content: center;
+            padding: 8px 14px;
+            font-size: 0.9em;
+            font-weight: 500;
+            background: linear-gradient(90deg, #007bff 0%, #00c6ff 100%);
+            color: #fff;
+            text-decoration: none;
+            border: none;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0,123,255,0.10);
+            transition: background 0.2s, box-shadow 0.2s, transform 0.1s;
+            position: relative;
+            overflow: hidden;
+            margin: 0 1px 4px 0;
+        }
+        .nav-links a:hover, .nav-links a:focus, button[type="submit"]:hover, button[type="submit"]:focus, .add-option-btn:hover, .add-option-btn:focus, .option-input button:hover, .option-input button:focus {
+            background: linear-gradient(90deg, #0056b3 0%, #00aaff 100%);
+            box-shadow: 0 4px 16px rgba(0,123,255,0.18);
+            transform: translateY(-2px) scale(1.03);
+        }
+        .nav-links a:active, button[type="submit"]:active, .add-option-btn:active, .option-input button:active {
+            background: linear-gradient(90deg, #0056b3 0%, #007bff 100%);
+            box-shadow: 0 2px 6px rgba(0,123,255,0.10);
+            transform: scale(0.98);
+        }
+        .nav-links a span, button[type="submit"] span, .add-option-btn span, .option-input button span { font-size: 1.1em; display: inline-block; }
+        .add-option-btn {
+            background: linear-gradient(90deg, #28a745 0%, #00c851 100%) !important;
+            box-shadow: 0 2px 8px rgba(40,167,69,0.10);
+        }
+        .add-option-btn:hover, .add-option-btn:focus {
+            background: linear-gradient(90deg, #218838 0%, #00b34d 100%) !important;
+            box-shadow: 0 4px 16px rgba(40,167,69,0.18);
+        }
+        .option-input button {
+            background: linear-gradient(90deg, #dc3545 0%, #ff6f6f 100%);
+        }
+        .option-input button:hover, .option-input button:focus {
+            background: linear-gradient(90deg, #c82333 0%, #ff5252 100%);
+        }
+        .flash {
+            padding: 10px;
+            margin-bottom: 20px;
+            border-radius: 5px;
+            background-color: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+        .help-text {
+            color: #666;
+            font-size: 0.9em;
+            margin-top: 5px;
+        }
+        .datetime-group {
+            display: flex;
+            gap: 15px;
+        }
+        .datetime-group .form-group {
+            flex: 1;
+        }
+        .warning-box {
+            background-color: #fff3cd;
+            padding: 15px;
+            border-radius: 5px;
+            margin-bottom: 20px;
+            border-left: 4px solid #ffc107;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>✏️ Редактировать голосование</h1>
+        
+        <div class="nav-links">
+            <a href="{{ url_for('index') }}">🏠 Главная</a>
+            <a href="{{ url_for('voting.index') }}">🗳️ Голосования</a>
+            <a href="{{ url_for('voting.view_voting', voting_id=voting.id) }}">👁️ Просмотр голосования</a>
+            <a href="{{ url_for('voting.my_votings') }}">📋 Мои голосования</a>
+            <a href="{{ url_for('profile') }}">👤 Профиль</a>
+            <a href="{{ url_for('auth.logout') }}">🚪 Выйти</a>
+        </div>
+
+        <div class="warning-box">
+            <strong>⚠️ Внимание:</strong> Редактирование голосования возможно только до его начала. 
+            После начала голосования изменения будут недоступны.
+        </div>
+
+        {% with messages = get_flashed_messages() %}
+            {% if messages %}
+                {% for message in messages %}
+                    <div class="flash">{{ message }}</div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+
+        <form method="POST">
+            <div class="form-group">
+                <label for="title">Название голосования:</label>
+                <input type="text" id="title" name="title" required 
+                       value="{{ voting.title }}"
+                       placeholder="Например: Выбор управляющей компании">
+                <div class="help-text">Краткое и понятное название голосования</div>
+            </div>
+            
+            <div class="form-group">
+                <label for="description">Описание:</label>
+                <textarea id="description" name="description" required 
+                          placeholder="Подробное описание вопроса для голосования...">{{ voting.description }}</textarea>
+                <div class="help-text">Объясните суть вопроса и его важность</div>
+            </div>
+            
+            <div class="form-group">
+                <label for="question">Вопрос для голосования:</label>
+                <input type="text" id="question" name="question" required 
+                       value="{{ voting.question }}"
+                       placeholder="Например: Согласны ли вы с выбором ООО 'Управдом' в качестве УК?">
+                <div class="help-text">Четкий вопрос, на который будут отвечать собственники</div>
+            </div>
+            
+            <div class="datetime-group">
+                <div class="form-group">
+                    <label for="start_date">Дата и время начала:</label>
+                    <input type="datetime-local" id="start_date" name="start_date" required
+                           value="{{ voting.start_date.strftime('%Y-%m-%dT%H:%M') }}">
+                    <div class="help-text">Когда начнется голосование</div>
+                </div>
+                
+                <div class="form-group">
+                    <label for="end_date">Дата и время окончания:</label>
+                    <input type="datetime-local" id="end_date" name="end_date" required
+                           value="{{ voting.end_date.strftime('%Y-%m-%dT%H:%M') }}">
+                    <div class="help-text">Когда закончится голосование</div>
+                </div>
+            </div>
+            
+            <div class="form-group">
+                <label>Варианты ответа:</label>
+                <div class="options-container">
+                    {% for option in voting.options %}
+                        <div class="option-input">
+                            <input type="text" name="options" value="{{ option.text }}" required>
+                            <button type="button" onclick="removeOption(this)">❌</button>
+                        </div>
+                    {% endfor %}
+                    <button type="button" class="add-option-btn" onclick="addOption()">➕ Добавить вариант</button>
+                </div>
+                <div class="help-text">Минимум 2 варианта ответа. Можно добавить больше.</div>
+            </div>
+            
+            <div class="btn-group">
+                <button type="submit">✅ Сохранить изменения</button>
+                <a href="{{ url_for('voting.view_voting', voting_id=voting.id) }}" style="text-decoration: none; display: inline-block; padding: 12px 30px; background-color: #6c757d; color: white; border-radius: 5px; margin: 0 10px;">
+                    ❌ Отмена
+                </a>
+            </div>
+        </form>
+    </div>
+
+    <script>
+        function addOption() {
+            const container = document.querySelector('.options-container');
+            const addButton = container.querySelector('.add-option-btn');
+            
+            const optionDiv = document.createElement('div');
+            optionDiv.className = 'option-input';
+            optionDiv.innerHTML = `
+                <input type="text" name="options" placeholder="Новый вариант ответа" required>
+                <button type="button" onclick="removeOption(this)">❌</button>
+            `;
+            
+            container.insertBefore(optionDiv, addButton);
+            
+            // Показываем кнопки удаления для всех вариантов
+            const removeButtons = container.querySelectorAll('.option-input button');
+            removeButtons.forEach(btn => btn.style.display = 'inline-block');
+        }
+        
+        function removeOption(button) {
+            const optionInputs = document.querySelectorAll('.option-input');
+            if (optionInputs.length > 2) {
+                button.parentElement.remove();
+                
+                // Скрываем кнопки удаления, если осталось только 2 варианта
+                const remainingOptions = document.querySelectorAll('.option-input');
+                if (remainingOptions.length === 2) {
+                    remainingOptions.forEach(option => {
+                        const removeBtn = option.querySelector('button');
+                        if (removeBtn) removeBtn.style.display = 'none';
+                    });
+                }
+            }
+        }
+        
+        // Показываем кнопки удаления, если больше 2 вариантов
+        const optionInputs = document.querySelectorAll('.option-input');
+        if (optionInputs.length > 2) {
+            optionInputs.forEach(option => {
+                const removeBtn = option.querySelector('button');
+                if (removeBtn) removeBtn.style.display = 'inline-block';
+            });
+        }
+    </script>
+</body>
+</html> 

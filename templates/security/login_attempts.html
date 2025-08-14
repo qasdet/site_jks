@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Попытки входа - Flask App</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Arial, sans-serif;
+            background-color: #f5f5f5;
+            margin: 0;
+            padding: 15px;
+        }
+        .container {
+            max-width: 800px;
+            margin: 30px auto;
+            background: white;
+            padding: 25px;
+            border-radius: 12px;
+            box-shadow: 0 4px 24px rgba(0,0,0,0.10);
+        }
+        h1 {
+            text-align: center;
+            color: #222;
+            margin-bottom: 25px;
+            font-weight: 700;
+            letter-spacing: 1px;
+        }
+        .nav-links {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 10px;
+            margin: 20px 0 30px 0;
+        }
+        .nav-links a {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            min-width: 120px;
+            justify-content: center;
+            padding: 10px 16px;
+            font-size: 0.95em;
+            font-weight: 500;
+            background: linear-gradient(90deg, #007bff 0%, #00c6ff 100%);
+            color: #fff;
+            text-decoration: none;
+            border: none;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0,123,255,0.10);
+            transition: background 0.2s, box-shadow 0.2s, transform 0.1s;
+        }
+        .nav-links a:hover, .nav-links a:focus {
+            background: linear-gradient(90deg, #0056b3 0%, #00aaff 100%);
+            box-shadow: 0 4px 16px rgba(0,123,255,0.18);
+            transform: translateY(-2px) scale(1.03);
+        }
+        .attempts-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 20px;
+        }
+        .attempts-table th, .attempts-table td {
+            padding: 10px 8px;
+            border-bottom: 1px solid #e9ecef;
+            text-align: left;
+            font-size: 0.97em;
+        }
+        .attempts-table th {
+            background: #f8f9fa;
+            color: #333;
+            font-weight: 600;
+        }
+        .attempts-table tr:hover {
+            background: #f1f7ff;
+        }
+        .success {
+            color: #28a745;
+            font-weight: 600;
+        }
+        .fail {
+            color: #dc3545;
+            font-weight: 600;
+        }
+        .pagination {
+            display: flex;
+            justify-content: center;
+            gap: 4px;
+            margin-top: 20px;
+        }
+        .pagination a, .pagination .current, .pagination span {
+            display: inline-block;
+            padding: 6px 12px;
+            font-size: 0.85em;
+            border-radius: 5px;
+            background: linear-gradient(90deg, #007bff 0%, #00c6ff 100%);
+            color: #fff;
+            text-decoration: none;
+            border: none;
+            box-shadow: 0 2px 6px rgba(0,123,255,0.10);
+            margin: 0 1px;
+            transition: background 0.2s, box-shadow 0.2s, transform 0.1s;
+        }
+        .pagination a:hover, .pagination a:focus {
+            background: linear-gradient(90deg, #0056b3 0%, #00aaff 100%);
+            box-shadow: 0 3px 12px rgba(0,123,255,0.15);
+            transform: translateY(-1px) scale(1.02);
+        }
+        .pagination .current {
+            background: #6c757d;
+            color: #fff;
+            font-weight: bold;
+        }
+        .empty-state {
+            text-align: center;
+            color: #666;
+            padding: 40px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔍 Попытки входа</h1>
+        <div class="nav-links">
+            <a href="{{ url_for('profile') }}"><span>👤</span>Профиль</a>
+            <a href="{{ url_for('security.security_logs') }}"><span>📊</span>Логи безопасности</a>
+            <a href="{{ url_for('index') }}"><span>🏠</span>Главная</a>
+        </div>
+        {% if attempts.items %}
+        <table class="attempts-table">
+            <thead>
+                <tr>
+                    <th>Дата/Время</th>
+                    <th>IP-адрес</th>
+                    <th>Устройство</th>
+                    <th>Статус</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for attempt in attempts.items %}
+                <tr>
+                    <td>{{ attempt.attempted_at.strftime('%d.%m.%Y %H:%M') }}</td>
+                    <td>{{ attempt.ip_address }}</td>
+                    <td>{{ attempt.user_agent[:40] }}{% if attempt.user_agent|length > 40 %}...{% endif %}</td>
+                    <td class="{% if attempt.success %}success{% else %}fail{% endif %}">
+                        {% if attempt.success %}Успех{% else %}Ошибка{% endif %}
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        {% if attempts.pages > 1 %}
+        <div class="pagination">
+            {% if attempts.has_prev %}
+                <a href="{{ url_for('security.login_attempts', page=attempts.prev_num) }}">← Предыдущая</a>
+            {% endif %}
+            {% for page_num in attempts.iter_pages() %}
+                {% if page_num %}
+                    {% if page_num != attempts.page %}
+                        <a href="{{ url_for('security.login_attempts', page=page_num) }}">{{ page_num }}</a>
+                    {% else %}
+                        <span class="current">{{ page_num }}</span>
+                    {% endif %}
+                {% else %}
+                    <span>...</span>
+                {% endif %}
+            {% endfor %}
+            {% if attempts.has_next %}
+                <a href="{{ url_for('security.login_attempts', page=attempts.next_num) }}">Следующая →</a>
+            {% endif %}
+        </div>
+        {% endif %}
+        {% else %}
+        <div class="empty-state">
+            <h3>Нет попыток входа</h3>
+            <p>Для вашего аккаунта пока не зафиксировано попыток входа.</p>
+        </div>
+        {% endif %}
+    </div>
+</body>
+</html> 

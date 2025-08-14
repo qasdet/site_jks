@@ -1,0 +1,324 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ voting.title }} - Система голосования</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f5f5f5;
+            margin: 0;
+            padding: 20px;
+        }
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        h1 {
+            color: #333;
+            margin-bottom: 20px;
+            line-height: 1.3;
+        }
+        .voting-info {
+            background-color: #f8f9fa;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 30px;
+            border-left: 4px solid #007bff;
+        }
+        .voting-status {
+            display: inline-block;
+            padding: 6px 16px;
+            border-radius: 20px;
+            font-size: 0.9em;
+            font-weight: bold;
+            margin-bottom: 15px;
+        }
+        .status-active {
+            background-color: #d4edda;
+            color: #155724;
+        }
+        .status-upcoming {
+            background-color: #fff3cd;
+            color: #856404;
+        }
+        .status-ended {
+            background-color: #f8d7da;
+            color: #721c24;
+        }
+        .voting-meta {
+            color: #666;
+            font-size: 0.9em;
+            margin-bottom: 15px;
+        }
+        .voting-description {
+            color: #333;
+            line-height: 1.8;
+            margin-bottom: 20px;
+        }
+        .voting-question {
+            background-color: #e7f3ff;
+            padding: 15px;
+            border-radius: 5px;
+            margin-bottom: 30px;
+            border-left: 4px solid #007bff;
+        }
+        .voting-form {
+            margin-bottom: 30px;
+        }
+        .option-group {
+            margin-bottom: 15px;
+        }
+        .option-group input[type="radio"] {
+            margin-right: 10px;
+        }
+        .option-group label {
+            font-size: 1.1em;
+            cursor: pointer;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            display: block;
+            transition: background-color 0.3s ease;
+        }
+        .option-group label:hover {
+            background-color: #f8f9fa;
+        }
+        .option-group input[type="radio"]:checked + label {
+            background-color: #e7f3ff;
+            border-color: #007bff;
+        }
+        .btn-group {
+            text-align: center;
+            margin-top: 30px;
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+        .nav-links {
+            text-align: center;
+            margin: 20px 0;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            justify-content: center;
+        }
+        .nav-links a, .btn-group button, .btn-primary, .btn-secondary, .results-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            min-width: 100px;
+            justify-content: center;
+            padding: 8px 12px;
+            font-size: 0.9em;
+            font-weight: 500;
+            background: linear-gradient(90deg, #007bff 0%, #00c6ff 100%);
+            color: #fff;
+            text-decoration: none;
+            border: none;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0,123,255,0.10);
+            transition: background 0.2s, box-shadow 0.2s, transform 0.1s;
+            position: relative;
+            overflow: hidden;
+            margin: 0 1px 4px 0;
+            white-space: nowrap;
+        }
+        .nav-links a:hover, .nav-links a:focus, .btn-group button:hover, .btn-group button:focus, .btn-primary:hover, .btn-primary:focus, .btn-secondary:hover, .btn-secondary:focus, .results-btn:hover, .results-btn:focus {
+            background: linear-gradient(90deg, #0056b3 0%, #00aaff 100%);
+            box-shadow: 0 4px 16px rgba(0,123,255,0.18);
+            transform: translateY(-2px) scale(1.03);
+        }
+        .nav-links a:active, .btn-group button:active, .btn-primary:active, .btn-secondary:active, .results-btn:active {
+            background: linear-gradient(90deg, #0056b3 0%, #007bff 100%);
+            box-shadow: 0 2px 6px rgba(0,123,255,0.10);
+            transform: scale(0.98);
+        }
+        .nav-links a span, .btn-group button span, .btn-primary span, .btn-secondary span, .results-btn span { font-size: 1.1em; display: inline-block; }
+        .btn-primary {
+            background: linear-gradient(90deg, #007bff 0%, #00c6ff 100%);
+        }
+        .btn-secondary {
+            background: linear-gradient(90deg, #6c757d 0%, #adb5bd 100%);
+        }
+        .results-btn {
+            background: linear-gradient(90deg, #28a745 0%, #20c997 100%) !important;
+        }
+        .results-btn:hover, .results-btn:focus {
+            background: linear-gradient(90deg, #218838 0%, #1ea085 100%) !important;
+        }
+        .flash {
+            padding: 10px;
+            margin-bottom: 20px;
+            border-radius: 5px;
+            background-color: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        .flash.error {
+            background-color: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+        .user-vote {
+            background-color: #d4edda;
+            padding: 15px;
+            border-radius: 5px;
+            margin-bottom: 20px;
+            border-left: 4px solid #28a745;
+        }
+        .results-preview {
+            background-color: #f8f9fa;
+            padding: 20px;
+            border-radius: 8px;
+            margin-top: 30px;
+        }
+        .result-bar {
+            background-color: #e9ecef;
+            border-radius: 10px;
+            height: 20px;
+            margin: 10px 0;
+            overflow: hidden;
+        }
+        .result-fill {
+            height: 100%;
+            background-color: #007bff;
+            transition: width 0.3s ease;
+        }
+        .result-text {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 5px;
+        }
+        
+        @media (max-width: 768px) {
+            .nav-links {
+                flex-direction: column;
+                align-items: center;
+            }
+            .nav-links a, .btn-group button, .btn-primary, .btn-secondary, .results-btn {
+                width: 100%;
+                max-width: 300px;
+                justify-content: center;
+            }
+            .btn-group {
+                display: flex;
+                flex-direction: column;
+                gap: 12px;
+                align-items: center;
+            }
+            .btn-group button, .btn-group a {
+                width: 100%;
+                max-width: 280px;
+                justify-content: center;
+            }
+        }
+    </style>
+</head>
+<body>
+    {% include 'base_notifications.html' %}
+    <div class="container">
+        <h1>{{ voting.title }}</h1>
+        
+        <div class="voting-info">
+            {% if voting.is_open() %}
+                <span class="voting-status status-active">🟢 Голосование активно</span>
+            {% elif voting.start_date > datetime.utcnow() %}
+                <span class="voting-status status-upcoming">🟡 Голосование начнется {{ voting.start_date.strftime('%d.%m.%Y в %H:%M') }}</span>
+            {% else %}
+                <span class="voting-status status-ended">🔴 Голосование завершено</span>
+            {% endif %}
+            
+            <div class="voting-meta">
+                📅 Создано: {{ voting.created_at.strftime('%d.%m.%Y в %H:%M') }} | 
+                👤 {{ voting.creator.username }} |
+                🕐 Период: {{ voting.start_date.strftime('%d.%m.%Y %H:%M') }} - {{ voting.end_date.strftime('%d.%m.%Y %H:%M') }}
+            </div>
+            
+            <div class="voting-description">
+                <strong>Описание:</strong><br>
+                {{ voting.description }}
+            </div>
+        </div>
+
+        <div class="voting-question">
+            <strong>Вопрос для голосования:</strong><br>
+            {{ voting.question }}
+        </div>
+
+        {% if user_voted %}
+            <div class="user-vote">
+                <strong>✅ Вы уже участвовали в этом голосовании</strong><br>
+                Ваш выбор: <strong>{{ user_vote.option.text }}</strong><br>
+                Время голосования: {{ user_vote.voted_at.strftime('%d.%m.%Y в %H:%M') }}
+            </div>
+        {% endif %}
+
+        {% if voting.is_open() and current_user.is_authenticated and not user_voted %}
+            {% if current_user.properties %}
+                <form method="POST" action="{{ url_for('voting.submit_vote', voting_id=voting.id) }}" class="voting-form">
+                    <h3>🗳️ Варианты ответа:</h3>
+                    
+                    {% for option in voting.options %}
+                        <div class="option-group">
+                            <input type="radio" id="option_{{ option.id }}" name="option_id" value="{{ option.id }}" required>
+                            <label for="option_{{ option.id }}">{{ option.text }}</label>
+                        </div>
+                    {% endfor %}
+                    
+                    <div class="btn-group">
+                        <button type="submit" class="btn-primary">🗳️ Проголосовать</button>
+                        <a href="{{ url_for('voting.index') }}" class="btn-secondary">
+                            ❌ Отмена
+                        </a>
+                    </div>
+                </form>
+            {% else %}
+                <div class="flash error">
+                    ⚠️ Для участия в голосовании необходимо зарегистрировать собственность. 
+                    <a href="{{ url_for('voting.add_property') }}">Добавить собственность</a>
+                </div>
+            {% endif %}
+        {% elif not current_user.is_authenticated %}
+            <div class="flash error">
+                ⚠️ Для участия в голосовании необходимо <a href="{{ url_for('auth.login') }}">войти в систему</a>
+            </div>
+        {% endif %}
+
+        <!-- Предварительные результаты -->
+        {% if total_votes > 0 %}
+            <div class="results-preview">
+                <h3>📊 Текущие результаты ({{ total_votes }} голосов):</h3>
+                
+                {% for option_id, result in results.items() %}
+                    <div class="result-text">
+                        <span>{{ result.text }}</span>
+                        <span>{{ result.votes }} голосов ({{ result.percentage }}%)</span>
+                    </div>
+                    <div class="result-bar">
+                        <div class="result-fill" style="width: {{ result.percentage }}%"></div>
+                    </div>
+                {% endfor %}
+                
+                <div style="text-align: center; margin-top: 20px;">
+                    <a href="{{ url_for('voting.results', voting_id=voting.id) }}" class="results-btn" style="display: inline-block; padding: 10px 20px; text-decoration: none;">
+                        📊 Подробные результаты
+                    </a>
+                </div>
+            </div>
+        {% else %}
+            <div class="results-preview">
+                <h3>📊 Результаты:</h3>
+                <p>Пока нет голосов</p>
+            </div>
+        {% endif %}
+    </div>
+</body>
+</html> 

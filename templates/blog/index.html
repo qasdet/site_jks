@@ -1,0 +1,384 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Блог - Форум собственников</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #f8f9fa;
+            min-height: 100vh;
+            padding: 20px;
+            color: #333;
+        }
+        
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            background: white;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.08);
+        }
+        
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+            padding-bottom: 20px;
+            border-bottom: 1px solid #e9ecef;
+        }
+        
+        .header h1 {
+            color: #333;
+            font-size: 2.2em;
+            font-weight: 600;
+        }
+        
+        .nav-links {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            justify-content: center;
+            margin: 25px 0;
+            padding: 20px;
+            background: #f8f9fa;
+            border-radius: 8px;
+            border: 1px solid #e9ecef;
+        }
+        
+        .nav-link {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 8px 12px;
+            background: #007bff;
+            color: white;
+            text-decoration: none;
+            border-radius: 4px;
+            font-weight: 500;
+            font-size: 0.85em;
+            transition: background 0.2s;
+        }
+        
+        .nav-link:hover {
+            background: #0056b3;
+        }
+        
+        .nav-link.create-btn {
+            background: #28a745;
+        }
+        
+        .nav-link.create-btn:hover {
+            background: #218838;
+        }
+        
+        .nav-link.logout-btn {
+            background: #dc3545;
+        }
+        
+        .nav-link.logout-btn:hover {
+            background: #c82333;
+        }
+        
+        .posts-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            margin-top: 25px;
+        }
+        
+        .post-card {
+            background: white;
+            border-radius: 8px;
+            padding: 20px;
+            border: 1px solid #e9ecef;
+            transition: border-color 0.2s;
+        }
+        
+        .post-card:hover {
+            border-color: #667eea;
+        }
+        
+        .post-title {
+            font-size: 1.2em;
+            color: #333;
+            margin-bottom: 12px;
+            font-weight: 600;
+        }
+        
+        .post-title a {
+            color: #007bff;
+            text-decoration: none;
+            transition: color 0.2s;
+        }
+        
+        .post-title a:hover {
+            color: #0056b3;
+        }
+        
+        .post-meta {
+            background: #f8f9fa;
+            padding: 10px 12px;
+            border-radius: 6px;
+            color: #666;
+            font-size: 0.85em;
+            margin: 12px 0;
+            border-left: 3px solid #667eea;
+        }
+        
+        .post-meta a {
+            color: #667eea;
+            text-decoration: none;
+            font-weight: 500;
+        }
+        
+        .post-meta a:hover {
+            color: #5a5fbf;
+        }
+        
+        .post-content {
+            color: #555;
+            line-height: 1.5;
+            margin-bottom: 15px;
+            font-size: 0.9em;
+        }
+        
+        .post-excerpt {
+            color: #777;
+            font-style: italic;
+            line-height: 1.4;
+            font-size: 0.85em;
+        }
+        
+        .post-actions {
+            display: flex;
+            gap: 8px;
+            margin-top: 15px;
+        }
+        
+        .action-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            padding: 6px 10px;
+            font-size: 0.8em;
+            font-weight: 500;
+            text-decoration: none;
+            border-radius: 4px;
+            transition: background 0.2s;
+        }
+        
+        .edit-btn {
+            background: #ffc107;
+            color: #212529;
+        }
+        
+        .edit-btn:hover {
+            background: #e0a800;
+        }
+        
+        .delete-btn {
+            background: #dc3545;
+            color: white;
+        }
+        
+        .delete-btn:hover {
+            background: #c82333;
+        }
+        
+        .flash {
+            padding: 10px 15px;
+            margin-bottom: 15px;
+            border-radius: 6px;
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+            font-size: 0.9em;
+        }
+        
+        .flash.error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+        
+        .empty-state {
+            text-align: center;
+            padding: 40px 20px;
+            color: #666;
+        }
+        
+        .empty-state i {
+            font-size: 3em;
+            margin-bottom: 15px;
+            color: #ccc;
+        }
+        
+        @media (max-width: 768px) {
+            .container {
+                padding: 20px;
+                margin: 10px;
+            }
+            
+            .header h1 {
+                font-size: 1.8em;
+            }
+            
+            .nav-links {
+                flex-direction: column;
+                align-items: center;
+            }
+            
+            .posts-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>📝 Блог Форум собственников</h1>
+        </div>
+        
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for category, message in messages %}
+                    <div class="flash {{ category }}">
+                        {% if category == 'error' %}
+                            <i class="bi bi-exclamation-triangle"></i>
+                        {% else %}
+                            <i class="bi bi-check-circle"></i>
+                        {% endif %}
+                        {{ message }}
+                    </div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+        
+        <!-- Подключаем систему уведомлений -->
+        {% include 'base_notifications.html' %}
+        
+        <div class="nav-links">
+            <a href="{{ url_for('index') }}" class="nav-link">
+                <i class="bi bi-house"></i>
+                Главная
+            </a>
+            <a href="{{ url_for('blog.my_posts') }}" class="nav-link">
+                 <i class="bi bi-file-text"></i>
+                 Мои посты
+             </a>
+        </div>
+        
+        {% if posts %}
+            <div class="posts-grid">
+                {% for post in posts %}
+                    <div class="post-card">
+                        <div class="post-title">
+                            <a href="{{ url_for('blog.post', post_id=post.id) }}">{{ post.title }}</a>
+                        </div>
+                        
+                        <div class="post-meta">
+                            <i class="bi bi-person"></i>
+                            <a href="#">{{ post.user.username }}</a>
+                            <span style="margin: 0 8px;">•</span>
+                            <i class="bi bi-calendar3"></i>
+                            {{ post.created_at.strftime('%d.%m.%Y') }}
+                        </div>
+                        
+                        <div class="post-content{% if post.has_password and not post.has_access %} blurred-content{% endif %}" data-blur="{{ '1' if post.has_password and not post.has_access else '0' }}">
+                            {% if post.content|length > 200 %}
+                                <div class="post-excerpt">{{ post.content[:200] }}...</div>
+                            {% else %}
+                                {{ post.content }}
+                            {% endif %}
+                            
+                            {% if post.has_password and not post.has_access %}
+                                <div style="margin-top: 10px; padding: 8px 12px; background: #fff3cd; border: 1px solid #ffeaa7; border-radius: 4px; color: #856404; font-size: 0.85em;">
+                                    <span style="margin-right: 5px;">🔐</span>Этот пост защищен паролем
+                                </div>
+                            {% endif %}
+                        </div>
+                        
+                        {% if current_user.is_authenticated and (current_user.id == post.user_id or current_user.is_admin) %}
+                            <div class="post-actions">
+                                <a href="{{ url_for('blog.edit', post_id=post.id) }}" class="action-btn edit-btn">
+                                    <i class="bi bi-pencil"></i>
+                                    Редактировать
+                                </a>
+                                <a href="#" onclick="deletePost({{ post.id }})" class="action-btn delete-btn">
+                                    <i class="bi bi-trash"></i>
+                                    Удалить
+                                </a>
+                            </div>
+                        {% endif %}
+                    </div>
+                {% endfor %}
+            </div>
+        {% else %}
+            <div class="empty-state">
+                <i class="bi bi-journal-text"></i>
+                <h3>Пока нет постов</h3>
+                <p>Будьте первым, кто создаст пост в блоге!</p>
+                {% if current_user.is_authenticated %}
+                    <a href="{{ url_for('blog.create') }}" class="nav-link create-btn" style="display: inline-flex; margin-top: 15px;">
+                        <i class="bi bi-plus-circle"></i>
+                        Создать пост
+                    </a>
+                {% endif %}
+            </div>
+        {% endif %}
+    </div>
+    
+    <script>
+        function deletePost(postId) {
+            if (confirm('Вы уверены, что хотите удалить этот пост? Это действие нельзя отменить.')) {
+                fetch(`/blog/delete/${postId}`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded',
+                    }
+                }).then(response => {
+                    if (response.ok) {
+                        window.location.reload();
+                    }
+                });
+            }
+        }
+
+        // JS-замыливание текста для защищённых постов
+        function blurText(text, blurRatio = 0.6) {
+            const blurChars = ['█', '▓', '▒', '░', '▄', '▌', '▐', '▀'];
+            return text.split(/(\s+)/).map(word => {
+                if (word.length <= 2 || /^\s+$/.test(word)) return word;
+                let chars = word.split('');
+                let numToBlur = Math.max(1, Math.floor(chars.length * blurRatio));
+                let positions = [];
+                while (positions.length < numToBlur) {
+                    let pos = Math.floor(Math.random() * chars.length);
+                    if (!positions.includes(pos)) positions.push(pos);
+                }
+                positions.forEach(pos => {
+                    chars[pos] = blurChars[Math.floor(Math.random() * blurChars.length)];
+                });
+                return chars.join('');
+            }).join('');
+        }
+
+        document.addEventListener('DOMContentLoaded', function() {
+            document.querySelectorAll('.blurred-content[data-blur="1"]').forEach(function(el) {
+                let original = el.innerText;
+                el.innerText = blurText(original, 0.6);
+            });
+        });
+    </script>
+</body>
+</html>

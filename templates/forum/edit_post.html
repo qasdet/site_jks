@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Редактировать сообщение - Форум жильцов</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Arial, sans-serif;
+            background-color: #f5f5f5;
+            margin: 0;
+            padding: 15px;
+        }
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: white;
+            padding: 20px;
+            border-radius: 12px;
+            box-shadow: 0 4px 24px rgba(0,0,0,0.10);
+        }
+        h1 {
+            color: #222;
+            text-align: center;
+            margin-bottom: 20px;
+            font-weight: 700;
+            letter-spacing: 1px;
+        }
+        .nav-links {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 8px;
+            margin-bottom: 20px;
+        }
+        .nav-links a {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            min-width: 100px;
+            justify-content: center;
+            padding: 8px 12px;
+            font-size: 0.85em;
+            font-weight: 500;
+            background: linear-gradient(90deg, #007bff 0%, #00c6ff 100%);
+            color: #fff;
+            text-decoration: none;
+            border: none;
+            border-radius: 6px;
+            box-shadow: 0 2px 6px rgba(0,123,255,0.10);
+            transition: background 0.2s, box-shadow 0.2s, transform 0.1s;
+        }
+        .nav-links a:hover, .nav-links a:focus {
+            background: linear-gradient(90deg, #0056b3 0%, #00aaff 100%);
+            box-shadow: 0 3px 12px rgba(0,123,255,0.15);
+            transform: translateY(-1px) scale(1.02);
+        }
+        .nav-links a span { font-size: 1em; display: inline-block; }
+        .form-group {
+            margin-bottom: 15px;
+        }
+        label {
+            display: block;
+            margin-bottom: 4px;
+            color: #555;
+            font-weight: 500;
+            font-size: 0.9em;
+        }
+        textarea {
+            width: 100%;
+            padding: 10px 14px;
+            border: 2px solid #e1e5e9;
+            border-radius: 8px;
+            font-size: 0.9em;
+            font-family: 'Segoe UI', Arial, sans-serif;
+            min-height: 120px;
+            resize: vertical;
+            box-sizing: border-box;
+            transition: border-color 0.2s, box-shadow 0.2s;
+            background: #fafbfc;
+        }
+        textarea:focus {
+            outline: none;
+            border-color: #007bff;
+            box-shadow: 0 0 0 3px rgba(0,123,255,0.1);
+            background: #fff;
+        }
+        .btn-group {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin-top: 20px;
+            flex-wrap: wrap;
+        }
+        button[type="submit"] {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            padding: 10px 20px;
+            font-size: 0.9em;
+            font-weight: 500;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            background: linear-gradient(90deg, #007bff 0%, #00c6ff 100%);
+            color: #fff;
+            box-shadow: 0 2px 8px rgba(0,123,255,0.10);
+            transition: background 0.2s, box-shadow 0.2s, transform 0.1s;
+        }
+        button[type="submit"]:hover, button[type="submit"]:focus {
+            background: linear-gradient(90deg, #0056b3 0%, #00aaff 100%);
+            box-shadow: 0 4px 16px rgba(0,123,255,0.18);
+            transform: translateY(-2px) scale(1.03);
+        }
+        button[type="submit"] span { font-size: 1.1em; display: inline-block; }
+        .btn-cancel {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            padding: 10px 20px;
+            font-size: 0.9em;
+            font-weight: 500;
+            background: linear-gradient(90deg, #6c757d 0%, #adb5bd 100%);
+            color: #fff;
+            text-decoration: none;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(108,117,125,0.10);
+            transition: background 0.2s, box-shadow 0.2s, transform 0.1s;
+        }
+        .btn-cancel:hover, .btn-cancel:focus {
+            background: linear-gradient(90deg, #545b62 0%, #868e96 100%);
+            box-shadow: 0 4px 16px rgba(108,117,125,0.18);
+            transform: translateY(-2px) scale(1.03);
+        }
+        .btn-cancel span { font-size: 1.1em; display: inline-block; }
+        .flash {
+            padding: 10px 14px;
+            margin-bottom: 15px;
+            border-radius: 8px;
+            background: linear-gradient(90deg, #d4edda 0%, #c3e6cb 100%);
+            color: #155724;
+            border: 1px solid #c3e6cb;
+            font-weight: 500;
+            font-size: 0.9em;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Подключаем систему уведомлений -->
+        {% include 'base_notifications.html' %}
+        
+        <div class="nav-links">
+            <a href="{{ url_for('index') }}"><span>🏠</span>Главная</a>
+            <a href="{{ url_for('forum.index') }}"><span>💬</span>Форум</a>
+            <a href="{{ url_for('forum.view_topic', topic_id=post.topic_id) }}"><span>📄</span>Вернуться к теме</a>
+        </div>
+        
+        {% with messages = get_flashed_messages() %}
+            {% if messages %}
+                {% for message in messages %}
+                    <div class="flash">{{ message }}</div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+        
+        <h1>✏️ Редактировать сообщение</h1>
+        
+        <form method="POST">
+            <div class="form-group">
+                <label for="content">Содержимое сообщения:</label>
+                <textarea id="content" name="content" required placeholder="Введите содержимое сообщения...">{{ post.content }}</textarea>
+            </div>
+            
+            <div class="btn-group">
+                <button type="submit">
+                    <span>💾</span>Сохранить изменения
+                </button>
+                <a href="{{ url_for('forum.view_topic', topic_id=post.topic_id) }}" class="btn-cancel">
+                    <span>❌</span>Отмена
+                </a>
+            </div>
+        </form>
+    </div>
+</body>
+</html>

@@ -1,0 +1,355 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Создать голосование - Система голосования</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Arial, sans-serif;
+            background-color: #f5f5f5;
+            margin: 0;
+            padding: 15px;
+        }
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: white;
+            padding: 20px;
+            border-radius: 12px;
+            box-shadow: 0 4px 24px rgba(0,0,0,0.10);
+        }
+        h1 {
+            color: #222;
+            text-align: center;
+            margin-bottom: 20px;
+            font-weight: 700;
+            letter-spacing: 1px;
+        }
+        .nav-links {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 8px;
+            margin-bottom: 20px;
+        }
+        .nav-links a {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            min-width: 100px;
+            justify-content: center;
+            padding: 8px 12px;
+            font-size: 0.85em;
+            font-weight: 500;
+            background: linear-gradient(90deg, #007bff 0%, #00c6ff 100%);
+            color: #fff;
+            text-decoration: none;
+            border: none;
+            border-radius: 6px;
+            box-shadow: 0 2px 6px rgba(0,123,255,0.10);
+            transition: background 0.2s, box-shadow 0.2s, transform 0.1s;
+        }
+        .nav-links a:hover, .nav-links a:focus {
+            background: linear-gradient(90deg, #0056b3 0%, #00aaff 100%);
+            box-shadow: 0 3px 12px rgba(0,123,255,0.15);
+            transform: translateY(-1px) scale(1.02);
+        }
+        .nav-links a span { font-size: 1em; display: inline-block; }
+        .form-group {
+            margin-bottom: 15px;
+        }
+        label {
+            display: block;
+            margin-bottom: 4px;
+            color: #555;
+            font-weight: 500;
+            font-size: 0.9em;
+        }
+        input[type="text"], textarea, input[type="datetime-local"] {
+            width: 100%;
+            padding: 10px 14px;
+            border: 2px solid #e1e5e9;
+            border-radius: 8px;
+            font-size: 0.9em;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Arial, sans-serif;
+            transition: border-color 0.2s, box-shadow 0.2s;
+            background: #fafbfc;
+        }
+        input[type="text"]:focus, textarea:focus, input[type="datetime-local"]:focus {
+            outline: none;
+            border-color: #007bff;
+            box-shadow: 0 0 0 3px rgba(0,123,255,0.1);
+            background: #fff;
+        }
+        textarea {
+            min-height: 80px;
+            resize: vertical;
+        }
+        .options-container {
+            border: 2px solid #e1e5e9;
+            border-radius: 8px;
+            padding: 12px;
+            background-color: #f8f9fa;
+        }
+        .option-input {
+            display: flex;
+            margin-bottom: 8px;
+            align-items: center;
+            gap: 8px;
+        }
+        .option-input input {
+            flex: 1;
+            margin-right: 0;
+        }
+        .option-input button {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 32px;
+            height: 32px;
+            padding: 0;
+            background: linear-gradient(90deg, #dc3545 0%, #ff6f6f 100%);
+            color: white;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 0.8em;
+            box-shadow: 0 2px 6px rgba(220,53,69,0.10);
+            transition: background 0.2s, box-shadow 0.2s, transform 0.1s;
+        }
+        .option-input button:hover, .option-input button:focus {
+            background: linear-gradient(90deg, #c82333 0%, #ff5252 100%);
+            box-shadow: 0 3px 12px rgba(220,53,69,0.15);
+            transform: translateY(-1px) scale(1.05);
+        }
+        .add-option-btn {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            padding: 8px 14px;
+            font-size: 0.85em;
+            font-weight: 500;
+            background: linear-gradient(90deg, #28a745 0%, #20c997 100%);
+            color: white;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            margin-top: 8px;
+            box-shadow: 0 2px 6px rgba(40,167,69,0.10);
+            transition: background 0.2s, box-shadow 0.2s, transform 0.1s;
+        }
+        .add-option-btn:hover, .add-option-btn:focus {
+            background: linear-gradient(90deg, #218838 0%, #1ea085 100%);
+            box-shadow: 0 3px 12px rgba(40,167,69,0.15);
+            transform: translateY(-1px) scale(1.02);
+        }
+        .add-option-btn span { font-size: 1em; display: inline-block; }
+        .btn-group {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin-top: 20px;
+            flex-wrap: wrap;
+        }
+        button[type="submit"] {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            padding: 10px 20px;
+            font-size: 0.9em;
+            font-weight: 500;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            background: linear-gradient(90deg, #007bff 0%, #00c6ff 100%);
+            color: #fff;
+            box-shadow: 0 2px 8px rgba(0,123,255,0.10);
+            transition: background 0.2s, box-shadow 0.2s, transform 0.1s;
+        }
+        button[type="submit"]:hover, button[type="submit"]:focus {
+            background: linear-gradient(90deg, #0056b3 0%, #00aaff 100%);
+            box-shadow: 0 4px 16px rgba(0,123,255,0.18);
+            transform: translateY(-2px) scale(1.03);
+        }
+        button[type="submit"] span { font-size: 1.1em; display: inline-block; }
+        .btn-cancel {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            padding: 10px 20px;
+            font-size: 0.9em;
+            font-weight: 500;
+            background: linear-gradient(90deg, #6c757d 0%, #adb5bd 100%);
+            color: #fff;
+            text-decoration: none;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(108,117,125,0.10);
+            transition: background 0.2s, box-shadow 0.2s, transform 0.1s;
+        }
+        .btn-cancel:hover, .btn-cancel:focus {
+            background: linear-gradient(90deg, #545b62 0%, #868e96 100%);
+            box-shadow: 0 4px 16px rgba(108,117,125,0.18);
+            transform: translateY(-2px) scale(1.03);
+        }
+        .btn-cancel span { font-size: 1.1em; display: inline-block; }
+        .flash {
+            padding: 10px 14px;
+            margin-bottom: 15px;
+            border-radius: 8px;
+            background: linear-gradient(90deg, #f8d7da 0%, #f5c6cb 100%);
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+            font-weight: 500;
+            font-size: 0.9em;
+        }
+        .help-text {
+            color: #666;
+            font-size: 0.8em;
+            margin-top: 4px;
+        }
+        .datetime-group {
+            display: flex;
+            gap: 12px;
+        }
+        .datetime-group .form-group {
+            flex: 1;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>➕ Создать новое голосование</h1>
+        
+        <div class="nav-links">
+            <a href="{{ url_for('index') }}"><span>🏠</span>Главная</a>
+            <a href="{{ url_for('voting.index') }}"><span>🗳️</span>Голосования</a>
+            <a href="{{ url_for('voting.my_votings') }}"><span>📋</span>Мои голосования</a>
+            <a href="{{ url_for('voting.my_properties') }}"><span>🏠</span>Моя собственность</a>
+            <a href="{{ url_for('profile') }}"><span>👤</span>Профиль</a>
+            <a href="{{ url_for('auth.logout') }}"><span>🚪</span>Выйти</a>
+        </div>
+
+        {% with messages = get_flashed_messages() %}
+            {% if messages %}
+                {% for message in messages %}
+                    <div class="flash">{{ message }}</div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+
+        <form method="POST">
+            <div class="form-group">
+                <label for="title">Название голосования:</label>
+                <input type="text" id="title" name="title" required 
+                       placeholder="Например: Выбор управляющей компании">
+                <div class="help-text">Краткое и понятное название голосования</div>
+            </div>
+            
+            <div class="form-group">
+                <label for="description">Описание:</label>
+                <textarea id="description" name="description" required 
+                          placeholder="Подробное описание вопроса для голосования..."></textarea>
+                <div class="help-text">Объясните суть вопроса и его важность</div>
+            </div>
+            
+            <div class="form-group">
+                <label for="question">Вопрос для голосования:</label>
+                <input type="text" id="question" name="question" required 
+                       placeholder="Например: Согласны ли вы с выбором ООО 'Управдом' в качестве УК?">
+                <div class="help-text">Четкий вопрос, на который будут отвечать собственники</div>
+            </div>
+            
+            <div class="datetime-group">
+                <div class="form-group">
+                    <label for="start_date">Дата и время начала:</label>
+                    <input type="datetime-local" id="start_date" name="start_date" required>
+                    <div class="help-text">Когда начнется голосование</div>
+                </div>
+                
+                <div class="form-group">
+                    <label for="end_date">Дата и время окончания:</label>
+                    <input type="datetime-local" id="end_date" name="end_date" required>
+                    <div class="help-text">Когда закончится голосование</div>
+                </div>
+            </div>
+            
+            <div class="form-group">
+                <label>Варианты ответа:</label>
+                <div class="options-container">
+                    <div class="option-input">
+                        <input type="text" name="options" placeholder="Вариант ответа 1" required>
+                        <button type="button" onclick="removeOption(this)" style="display: none;">❌</button>
+                    </div>
+                    <div class="option-input">
+                        <input type="text" name="options" placeholder="Вариант ответа 2" required>
+                        <button type="button" onclick="removeOption(this)" style="display: none;">❌</button>
+                    </div>
+                    <button type="button" class="add-option-btn" onclick="addOption()">
+                        <span>➕</span>Добавить вариант
+                    </button>
+                </div>
+                <div class="help-text">Минимум 2 варианта ответа. Можно добавить больше.</div>
+            </div>
+            
+            <div class="btn-group">
+                <button type="submit">
+                    <span>✅</span>Создать голосование
+                </button>
+                <a href="{{ url_for('voting.index') }}" class="btn-cancel">
+                    <span>❌</span>Отмена
+                </a>
+            </div>
+        </form>
+    </div>
+
+    <script>
+        function addOption() {
+            const container = document.querySelector('.options-container');
+            const addButton = container.querySelector('.add-option-btn');
+            
+            const optionDiv = document.createElement('div');
+            optionDiv.className = 'option-input';
+            optionDiv.innerHTML = `
+                <input type="text" name="options" placeholder="Новый вариант ответа" required>
+                <button type="button" onclick="removeOption(this)">❌</button>
+            `;
+            
+            container.insertBefore(optionDiv, addButton);
+            
+            // Показываем кнопки удаления для всех вариантов
+            const removeButtons = container.querySelectorAll('.option-input button');
+            removeButtons.forEach(btn => btn.style.display = 'inline-block');
+        }
+        
+        function removeOption(button) {
+            const optionInputs = document.querySelectorAll('.option-input');
+            if (optionInputs.length > 2) {
+                button.parentElement.remove();
+                
+                // Скрываем кнопки удаления, если осталось только 2 варианта
+                const remainingOptions = document.querySelectorAll('.option-input');
+                if (remainingOptions.length === 2) {
+                    remainingOptions.forEach(option => {
+                        const removeBtn = option.querySelector('button');
+                        if (removeBtn) removeBtn.style.display = 'none';
+                    });
+                }
+            }
+        }
+        
+        // Устанавливаем минимальные даты
+        const now = new Date();
+        const startDate = new Date(now.getTime() + 60 * 60 * 1000); // +1 час
+        const endDate = new Date(now.getTime() + 24 * 60 * 60 * 1000); // +1 день
+        
+        document.getElementById('start_date').min = startDate.toISOString().slice(0, 16);
+        document.getElementById('end_date').min = endDate.toISOString().slice(0, 16);
+        
+        // Автоматически устанавливаем даты
+        document.getElementById('start_date').value = startDate.toISOString().slice(0, 16);
+        document.getElementById('end_date').value = endDate.toISOString().slice(0, 16);
+    </script>
+</body>
+</html> 

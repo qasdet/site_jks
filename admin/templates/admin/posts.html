@@ -1,0 +1,243 @@
+{% extends 'admin/base.html' %}
+{% block title %}Посты блога | Админ-панель{% endblock %}
+{% block page_title %}Управление постами блога{% endblock %}
+{% block content %}
+<div class="card">
+  <div class="card-header">
+    <div class="row align-items-center">
+      <div class="col">
+        <h5 class="mb-0">
+          <i class="bi bi-file-text"></i>
+          Список постов ({{ posts.total }})
+        </h5>
+      </div>
+    </div>
+  </div>
+  
+  <!-- Фильтры -->
+  <div class="card-body border-bottom">
+    <form method="GET" class="row g-3">
+      <div class="col-md-4">
+        <input type="text" class="form-control" name="search" placeholder="Поиск по заголовку или содержанию" value="{{ search }}">
+      </div>
+      <div class="col-md-2">
+        <input type="text" class="form-control" name="author" placeholder="Автор" value="{{ author }}">
+      </div>
+      <div class="col-md-2">
+        <select class="form-select" name="status">
+          <option value="">Все статусы</option>
+          <option value="published" {% if status == 'published' %}selected{% endif %}>Опубликованные</option>
+          <option value="unpublished" {% if status == 'unpublished' %}selected{% endif %}>Неопубликованные</option>
+        </select>
+      </div>
+      <div class="col-md-2">
+        <select class="form-select" name="sort">
+          <option value="created_at" {% if sort_by == 'created_at' %}selected{% endif %}>По дате</option>
+          <option value="title" {% if sort_by == 'title' %}selected{% endif %}>По заголовку</option>
+        </select>
+      </div>
+      <div class="col-md-1">
+        <select class="form-select" name="order">
+          <option value="desc" {% if sort_order == 'desc' %}selected{% endif %}>По убыванию</option>
+          <option value="asc" {% if sort_order == 'asc' %}selected{% endif %}>По возрастанию</option>
+        </select>
+      </div>
+      <div class="col-md-1">
+        <div class="btn-group w-100">
+          <button type="submit" class="btn btn-primary">
+            <i class="bi bi-search"></i>
+          </button>
+          <a href="{{ url_for('admin.posts') }}" class="btn btn-outline-secondary">
+            <i class="bi bi-arrow-clockwise"></i>
+          </a>
+        </div>
+      </div>
+    </form>
+  </div>
+  
+  <!-- Массовые действия + таблица в одной форме -->
+  <form method="POST" action="{{ url_for('admin.posts_mass_action') }}" id="massActionForm">
+    <div class="card-body border-bottom">
+      <div class="row align-items-center">
+        <div class="col-auto">
+          <div class="form-check">
+            <input class="form-check-input" type="checkbox" id="selectAll">
+            <label class="form-check-label" for="selectAll">
+              Выбрать все
+            </label>
+          </div>
+        </div>
+        <div class="col">
+          <select class="form-select" name="action" id="massAction">
+            <option value="">Массовые действия</option>
+            <option value="publish">Опубликовать</option>
+            <option value="unpublish">Снять с публикации</option>
+            <option value="delete">Удалить</option>
+          </select>
+        </div>
+        <div class="col-auto">
+          <button type="submit" class="btn btn-warning" id="massActionBtn" disabled>
+            Применить
+          </button>
+        </div>
+      </div>
+    </div>
+    <div class="card-body">
+      <div class="table-responsive">
+        <table class="table table-striped table-hover">
+          <thead class="table-dark">
+            <tr>
+              <th width="50">
+                <input type="checkbox" class="form-check-input" id="selectAllTable">
+              </th>
+              <th>ID</th>
+              <th>Заголовок</th>
+              <th>Автор</th>
+              <th>Статус</th>
+              <th>Дата создания</th>
+              <th>Действия</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for post in posts.items %}
+            <tr>
+              <td>
+                <input type="checkbox" class="form-check-input post-checkbox" name="post_ids" value="{{ post.id }}">
+              </td>
+              <td>{{ post.id }}</td>
+              <td>
+                <strong>{{ post.title }}</strong>
+                <br>
+                <small class="text-muted">{{ post.content[:100] }}...</small>
+              </td>
+              <td>{{ post.user.username }}</td>
+              <td>
+                {% if post.is_published %}
+                  <span class="badge bg-success">Опубликован</span>
+                {% else %}
+                  <span class="badge bg-warning">Неопубликован</span>
+                {% endif %}
+              </td>
+              <td>{{ post.created_at.strftime('%d.%m.%Y в %H:%M') }}</td>
+              <td>
+                <div class="btn-group" role="group">
+                  {% if post.is_published %}
+                    <form method="POST" action="{{ url_for('admin.unpublish_post', post_id=post.id) }}" style="display: inline;">
+                      <button type="submit" class="btn btn-sm btn-outline-warning" 
+                              onclick="return confirm('Снять с публикации пост \"{{ post.title }}\"?')"
+                              title="Снять с публикации">
+                        <i class="bi bi-eye-slash"></i>
+                      </button>
+                    </form>
+                  {% else %}
+                    <form method="POST" action="{{ url_for('admin.publish_post', post_id=post.id) }}" style="display: inline;">
+                      <button type="submit" class="btn btn-sm btn-outline-success" 
+                              onclick="return confirm('Опубликовать пост \"{{ post.title }}\"?')"
+                              title="Опубликовать">
+                        <i class="bi bi-eye"></i>
+                      </button>
+                    </form>
+                  {% endif %}
+                  <form method="POST" action="{{ url_for('admin.delete_post', post_id=post.id) }}" style="display: inline;">
+                    <button type="submit" class="btn btn-sm btn-outline-danger" 
+                            onclick="return confirm('Удалить пост \"{{ post.title }}\"?')"
+                            title="Удалить">
+                      <i class="bi bi-trash"></i>
+                    </button>
+                  </form>
+                </div>
+              </td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+      <!-- Пагинация -->
+      {% if posts.pages > 1 %}
+      <nav aria-label="Навигация по страницам">
+        <ul class="pagination justify-content-center">
+          {% if posts.has_prev %}
+            <li class="page-item">
+              <a class="page-link" href="{{ url_for('admin.posts', page=posts.prev_num, search=search, author=author, status=status, sort=sort_by, order=sort_order) }}">
+                <i class="bi bi-chevron-left"></i>
+              </a>
+            </li>
+          {% endif %}
+          
+          {% for page_num in posts.iter_pages() %}
+            {% if page_num %}
+              <li class="page-item {{ 'active' if page_num == posts.page else '' }}">
+                <a class="page-link" href="{{ url_for('admin.posts', page=page_num, search=search, author=author, status=status, sort=sort_by, order=sort_order) }}">
+                  {{ page_num }}
+                </a>
+              </li>
+            {% else %}
+              <li class="page-item disabled"><span class="page-link">...</span></li>
+            {% endif %}
+          {% endfor %}
+          
+          {% if posts.has_next %}
+            <li class="page-item">
+              <a class="page-link" href="{{ url_for('admin.posts', page=posts.next_num, search=search, author=author, status=status, sort=sort_by, order=sort_order) }}">
+                <i class="bi bi-chevron-right"></i>
+              </a>
+            </li>
+          {% endif %}
+        </ul>
+      </nav>
+      {% endif %}
+    </div>
+  </form>
+</div>
+
+<script>
+// Обработка массовых действий
+document.getElementById('selectAll').addEventListener('change', function() {
+  const checkboxes = document.querySelectorAll('.post-checkbox');
+  checkboxes.forEach(cb => cb.checked = this.checked);
+  updateMassActionButton();
+});
+
+document.getElementById('selectAllTable').addEventListener('change', function() {
+  const checkboxes = document.querySelectorAll('.post-checkbox');
+  checkboxes.forEach(cb => cb.checked = this.checked);
+  document.getElementById('selectAll').checked = this.checked;
+  updateMassActionButton();
+});
+
+document.querySelectorAll('.post-checkbox').forEach(cb => {
+  cb.addEventListener('change', updateMassActionButton);
+});
+
+function updateMassActionButton() {
+  const checkedBoxes = document.querySelectorAll('.post-checkbox:checked');
+  const massActionBtn = document.getElementById('massActionBtn');
+  const massAction = document.getElementById('massAction');
+  
+  massActionBtn.disabled = checkedBoxes.length === 0 || massAction.value === '';
+}
+
+document.getElementById('massAction').addEventListener('change', updateMassActionButton);
+
+document.getElementById('massActionForm').addEventListener('submit', function(e) {
+  const checkedBoxes = document.querySelectorAll('.post-checkbox:checked');
+  const action = document.getElementById('massAction').value;
+  
+  if (checkedBoxes.length === 0) {
+    e.preventDefault();
+    alert('Выберите хотя бы один пост');
+    return;
+  }
+  
+  if (!action) {
+    e.preventDefault();
+    alert('Выберите действие');
+    return;
+  }
+  
+  if (action === 'delete' && !confirm('Вы уверены, что хотите удалить выбранные посты?')) {
+    e.preventDefault();
+  }
+});
+</script>
+{% endblock %} 

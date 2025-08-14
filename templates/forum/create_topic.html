@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Создать тему - Форум жильцов</title>
+    <style>
+        body { 
+            font-family: 'Segoe UI', Arial, sans-serif; 
+            background: #f5f5f5; 
+            margin: 0; 
+            padding: 15px; 
+        }
+        .container { 
+            max-width: 800px; 
+            margin: 0 auto; 
+            background: #fff; 
+            padding: 20px; 
+            border-radius: 12px; 
+            box-shadow: 0 4px 24px rgba(0,0,0,0.10); 
+        }
+        h1 { 
+            color: #222; 
+            margin-bottom: 20px; 
+            text-align: center; 
+            font-weight: 700;
+            letter-spacing: 1px;
+        }
+        .nav-links {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 12px;
+            margin-bottom: 20px;
+        }
+        .nav-links a {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            min-width: 120px;
+            justify-content: center;
+            padding: 10px 16px;
+            font-size: 0.95em;
+            font-weight: 500;
+            background: linear-gradient(90deg, #007bff 0%, #00c6ff 100%);
+            color: #fff;
+            text-decoration: none;
+            border: none;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0,123,255,0.10);
+            transition: background 0.2s, box-shadow 0.2s, transform 0.1s;
+            position: relative;
+            overflow: hidden;
+        }
+        .nav-links a:hover, .nav-links a:focus {
+            background: linear-gradient(90deg, #0056b3 0%, #00aaff 100%);
+            box-shadow: 0 4px 16px rgba(0,123,255,0.18);
+            transform: translateY(-2px) scale(1.03);
+        }
+        .nav-links a:active {
+            background: linear-gradient(90deg, #0056b3 0%, #007bff 100%);
+            box-shadow: 0 2px 6px rgba(0,123,255,0.10);
+            transform: scale(0.98);
+        }
+        .nav-links a span { font-size: 1.1em; display: inline-block; }
+        .form-group { 
+            margin-bottom: 15px; 
+        }
+        label { 
+            display: block; 
+            margin-bottom: 6px; 
+            color: #555; 
+            font-weight: 500; 
+        }
+        input[type="text"], input[type="url"], textarea { 
+            width: 100%; 
+            padding: 10px 14px; 
+            border: 2px solid #e1e5e9; 
+            border-radius: 8px; 
+            font-size: 16px; 
+            font-family: 'Segoe UI', Arial, sans-serif; 
+            box-sizing: border-box;
+            transition: border-color 0.2s, box-shadow 0.2s;
+            background: #fafbfc;
+        }
+        input[type="text"]:focus, input[type="url"]:focus, textarea:focus {
+            outline: none;
+            border-color: #007bff;
+            box-shadow: 0 0 0 3px rgba(0,123,255,0.1);
+            background: #fff;
+        }
+        textarea { 
+            min-height: 200px; 
+            resize: vertical; 
+        }
+        .btn-group {
+            display: flex;
+            justify-content: center;
+            gap: 12px;
+            margin-top: 20px;
+        }
+        button[type="submit"] {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            padding: 12px 24px;
+            font-size: 1em;
+            font-weight: 500;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            background: linear-gradient(90deg, #007bff 0%, #00c6ff 100%);
+            color: #fff;
+            box-shadow: 0 2px 8px rgba(0,123,255,0.10);
+            transition: background 0.2s, box-shadow 0.2s, transform 0.1s;
+        }
+        button[type="submit"]:hover, button[type="submit"]:focus {
+            background: linear-gradient(90deg, #0056b3 0%, #00aaff 100%);
+            box-shadow: 0 4px 16px rgba(0,123,255,0.18);
+            transform: translateY(-2px) scale(1.03);
+        }
+        button[type="submit"]:active {
+            background: linear-gradient(90deg, #0056b3 0%, #007bff 100%);
+            box-shadow: 0 2px 6px rgba(0,123,255,0.10);
+            transform: scale(0.98);
+        }
+        button[type="submit"] span { font-size: 1.1em; display: inline-block; }
+        .btn-secondary {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            padding: 12px 24px;
+            font-size: 1em;
+            font-weight: 500;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            background: linear-gradient(90deg, #6c757d 0%, #adb5bd 100%);
+            color: #fff;
+            text-decoration: none;
+            box-shadow: 0 2px 8px rgba(108,117,125,0.10);
+            transition: background 0.2s, box-shadow 0.2s, transform 0.1s;
+        }
+        .btn-secondary:hover, .btn-secondary:focus {
+            background: linear-gradient(90deg, #545b62 0%, #868e96 100%);
+            box-shadow: 0 4px 16px rgba(108,117,125,0.18);
+            transform: translateY(-2px) scale(1.03);
+        }
+        .btn-secondary span { font-size: 1.1em; display: inline-block; }
+        .flash { 
+            padding: 10px 14px; 
+            margin-bottom: 15px; 
+            border-radius: 8px; 
+            background: linear-gradient(90deg, #d4edda 0%, #c3e6cb 100%); 
+            color: #155724; 
+            border: 1px solid #c3e6cb; 
+            font-weight: 500;
+        }
+        .image-preview {
+            margin-top: 10px;
+            text-align: center;
+        }
+        .image-preview img {
+            max-width: 100%;
+            max-height: 200px;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            display: none;
+        }
+        .help-text {
+            font-size: 0.85em;
+            color: #666;
+            margin-top: 4px;
+            font-style: italic;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Подключаем систему уведомлений -->
+        {% include 'base_notifications.html' %}
+        
+        <div class="nav-links">
+            <a href="{{ url_for('index') }}"><span>🏠</span>Главная</a>
+            <a href="{{ url_for('forum.index') }}"><span>💬</span>Форум</a>
+        </div>
+        {% with messages = get_flashed_messages() %}
+            {% if messages %}
+                {% for message in messages %}
+                    <div class="flash">{{ message }}</div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+        <h1>📝 Создать новую тему</h1>
+        <form method="POST">
+            <div class="form-group">
+                <label for="title">Заголовок темы:</label>
+                <input type="text" id="title" name="title" required placeholder="Введите заголовок темы...">
+            </div>
+            <div class="form-group">
+                <label for="content">Первое сообщение:</label>
+                <textarea id="content" name="content" required placeholder="Введите содержимое первого сообщения..."></textarea>
+            </div>
+            <div class="form-group">
+                <label for="image_url">Ссылка на изображение:</label>
+                <input type="url" id="image_url" name="image_url" placeholder="Введите ссылку на изображение...">
+            </div>
+            <div class="image-preview">
+                <img id="image-preview-img" src="" alt="Изображение темы">
+            </div>
+            <div class="help-text">
+                Вставьте ссылку на изображение, чтобы оно отображалось в начале темы.
+            </div>
+            <div class="btn-group">
+                <button type="submit"><span>📤</span>Создать тему</button>
+                <a href="{{ url_for('forum.index') }}" class="btn-secondary"><span>❌</span>Отмена</a>
+            </div>
+        </form>
+    </div>
+    
+    <script>
+        // Предварительный просмотр изображения
+        document.getElementById('image_url').addEventListener('input', function() {
+            const imageUrl = this.value.trim();
+            const previewImg = document.getElementById('image-preview-img');
+            
+            if (imageUrl && (imageUrl.startsWith('http://') || imageUrl.startsWith('https://'))) {
+                previewImg.src = imageUrl;
+                previewImg.style.display = 'block';
+                previewImg.onload = function() {
+                    this.style.display = 'block';
+                };
+                previewImg.onerror = function() {
+                    this.style.display = 'none';
+                    alert('Не удалось загрузить изображение. Проверьте ссылку.');
+                };
+            } else {
+                previewImg.style.display = 'none';
+            }
+        });
+    </script>
+</body>
+</html>

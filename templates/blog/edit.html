@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Редактировать пост - Flask Blog</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Arial, sans-serif;
+            background-color: #f5f5f5;
+            margin: 0;
+            padding: 20px;
+        }
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: white;
+            padding: 30px;
+            border-radius: 16px;
+            box-shadow: 0 4px 24px rgba(0,0,0,0.10);
+        }
+        h1 {
+            color: #222;
+            text-align: center;
+            margin-bottom: 30px;
+            font-weight: 700;
+            letter-spacing: 1px;
+        }
+        .form-group {
+            margin-bottom: 20px;
+        }
+        label {
+            display: block;
+            margin-bottom: 8px;
+            color: #555;
+            font-weight: 500;
+        }
+        input[type="text"], textarea {
+            width: 100%;
+            padding: 12px 16px;
+            border: 2px solid #e1e5e9;
+            border-radius: 10px;
+            font-size: 16px;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Arial, sans-serif;
+            transition: border-color 0.2s, box-shadow 0.2s;
+            background: #fafbfc;
+        }
+        input[type="text"]:focus, textarea:focus {
+            outline: none;
+            border-color: #007bff;
+            box-shadow: 0 0 0 3px rgba(0,123,255,0.1);
+            background: #fff;
+        }
+        textarea {
+            min-height: 300px;
+            resize: vertical;
+        }
+        .btn-group {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin-top: 20px;
+            flex-wrap: wrap;
+        }
+        button[type="submit"] {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            padding: 10px 20px;
+            font-size: 0.9em;
+            font-weight: 500;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            background: linear-gradient(90deg, #007bff 0%, #00c6ff 100%);
+            color: #fff;
+            box-shadow: 0 2px 8px rgba(0,123,255,0.10);
+            transition: background 0.2s, box-shadow 0.2s, transform 0.1s;
+        }
+        button[type="submit"]:hover, button[type="submit"]:focus {
+            background: linear-gradient(90deg, #0056b3 0%, #00aaff 100%);
+            box-shadow: 0 4px 16px rgba(0,123,255,0.18);
+            transform: translateY(-2px) scale(1.03);
+        }
+        button[type="submit"] span { font-size: 1.1em; display: inline-block; }
+        .btn-secondary {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            padding: 10px 20px;
+            font-size: 0.9em;
+            font-weight: 500;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            background: linear-gradient(90deg, #6c757d 0%, #adb5bd 100%);
+            color: #fff;
+            text-decoration: none;
+            box-shadow: 0 2px 8px rgba(108,117,125,0.10);
+            transition: background 0.2s, box-shadow 0.2s, transform 0.1s;
+        }
+        .btn-secondary:hover, .btn-secondary:focus {
+            background: linear-gradient(90deg, #545b62 0%, #868e96 100%);
+            box-shadow: 0 4px 16px rgba(108,117,125,0.18);
+            transform: translateY(-2px) scale(1.03);
+        }
+        .btn-secondary span { font-size: 1.1em; display: inline-block; }
+        .nav-links {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 8px;
+            margin-bottom: 20px;
+        }
+        .nav-links a {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            min-width: 100px;
+            justify-content: center;
+            padding: 8px 12px;
+            font-size: 0.85em;
+            font-weight: 500;
+            background: linear-gradient(90deg, #007bff 0%, #00c6ff 100%);
+            color: #fff;
+            text-decoration: none;
+            border: none;
+            border-radius: 6px;
+            box-shadow: 0 2px 6px rgba(0,123,255,0.10);
+            transition: background 0.2s, box-shadow 0.2s, transform 0.1s;
+        }
+        .nav-links a:hover, .nav-links a:focus {
+            background: linear-gradient(90deg, #0056b3 0%, #00aaff 100%);
+            box-shadow: 0 3px 12px rgba(0,123,255,0.15);
+            transform: translateY(-1px) scale(1.02);
+        }
+        .nav-links a span { font-size: 1em; display: inline-block; }
+        .flash {
+            padding: 12px 16px;
+            margin-bottom: 20px;
+            border-radius: 10px;
+            background: linear-gradient(90deg, #f8d7da 0%, #f5c6cb 100%);
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+            font-weight: 500;
+        }
+        .help-text {
+            color: #666;
+            font-size: 0.9em;
+            margin-top: 8px;
+            font-style: italic;
+        }
+        .post-info {
+            background-color: #f8f9fa;
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            border-left: 4px solid #ffc107;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>✏️ Редактировать пост</h1>
+        
+        <div class="nav-links">
+            <a href="{{ url_for('index') }}"><span>🏠</span>Главная</a>
+            <a href="{{ url_for('blog.index') }}"><span>📝</span>Блог</a>
+            <a href="{{ url_for('blog.post', post_id=post.id) }}"><span>👁️</span>Просмотр поста</a>
+            <a href="{{ url_for('blog.my_posts') }}"><span>📋</span>Мои посты</a>
+            <a href="{{ url_for('profile') }}"><span>👤</span>Профиль</a>
+            <a href="{{ url_for('auth.logout') }}"><span>🚪</span>Выйти</a>
+        </div>
+
+        <div class="post-info">
+            <strong>Редактируете пост:</strong> "{{ post.title }}"
+            <br>
+            <small>Создан: {{ post.created_at.strftime('%d.%m.%Y в %H:%M') }}</small>
+        </div>
+
+        {% with messages = get_flashed_messages() %}
+            {% if messages %}
+                {% for message in messages %}
+                    <div class="flash">{{ message }}</div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+
+        <form method="POST" enctype="multipart/form-data">
+            <div class="form-group">
+                <label for="title">Заголовок поста:</label>
+                <input type="text" id="title" name="title" required 
+                       value="{{ post.title }}" placeholder="Введите заголовок поста...">
+                <div class="help-text">Заголовок должен быть информативным и привлекательным</div>
+            </div>
+            
+            <div class="form-group">
+                <label for="content">Содержание поста:</label>
+                <textarea id="content" name="content" required 
+                          >{{ post.content }}</textarea>
+                <div class="help-text">Поддерживается HTML разметка для форматирования текста</div>
+            </div>
+            <div class="form-group">
+                <label for="image">Картинка к посту (опционально):</label>
+                <input type="file" id="image" name="image" accept="image/*">
+                <div class="help-text">Можно загрузить изображение (JPG, PNG, GIF и др.)</div>
+                {% if post.image %}
+                    <div style="margin-top:8px;">
+                        <span style="color:#888; font-size:0.95em;">Текущее изображение:</span><br>
+                        <img src="{{ url_for('static', filename='uploads/' ~ post.image) }}" alt="Картинка поста" style="max-width:180px; max-height:120px; border-radius:6px; margin-top:4px;">
+                    </div>
+                {% endif %}
+            </div>
+            
+            <div class="btn-group">
+                <button type="submit"><span>💾</span>Сохранить изменения</button>
+                <a href="{{ url_for('blog.post', post_id=post.id) }}" class="btn-secondary">
+                    <span>❌</span>Отмена
+                </a>
+            </div>
+        </form>
+    </div>
+</body>
+</html> 

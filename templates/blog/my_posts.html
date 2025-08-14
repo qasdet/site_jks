@@ -1,0 +1,318 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Мои посты - Flask Blog</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Arial, sans-serif;
+            background-color: #f5f5f5;
+            margin: 0;
+            padding: 15px;
+        }
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: white;
+            padding: 20px;
+            border-radius: 12px;
+            box-shadow: 0 4px 24px rgba(0,0,0,0.10);
+        }
+        h1 {
+            color: #222;
+            text-align: center;
+            margin-bottom: 20px;
+            font-weight: 700;
+            letter-spacing: 1px;
+        }
+        .post-card {
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 15px;
+            background: white;
+            transition: box-shadow 0.3s ease;
+        }
+        .post-card:hover {
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        }
+        .post-title {
+            font-size: 1.3em;
+            color: #333;
+            margin-bottom: 8px;
+        }
+        .post-title a {
+            color: #007bff;
+            text-decoration: none;
+        }
+        .post-title a:hover {
+            text-decoration: underline;
+        }
+        .post-meta {
+            color: #666;
+            font-size: 0.85em;
+            margin-bottom: 12px;
+        }
+        .post-content {
+            color: #555;
+            line-height: 1.5;
+            margin-bottom: 12px;
+        }
+        .post-excerpt {
+            color: #777;
+            font-style: italic;
+        }
+        .post-actions {
+            margin-top: 8px;
+            padding-top: 8px;
+            border-top: 1px solid #eee;
+        }
+        .post-actions a {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            margin-right: 6px;
+            margin-top: 2px;
+            padding: 4px 10px;
+            text-decoration: none;
+            border-radius: 5px;
+            font-size: 0.8em;
+            font-weight: 500;
+            transition: background 0.2s, box-shadow 0.2s, transform 0.1s;
+        }
+        .view-btn {
+            background: linear-gradient(90deg, #007bff 0%, #00c6ff 100%);
+            color: white;
+            box-shadow: 0 1px 4px rgba(0,123,255,0.10);
+        }
+        .view-btn:hover, .view-btn:focus {
+            background: linear-gradient(90deg, #0056b3 0%, #00aaff 100%);
+            box-shadow: 0 2px 8px rgba(0,123,255,0.15);
+            transform: translateY(-1px) scale(1.02);
+        }
+        .edit-btn {
+            background: linear-gradient(90deg, #ffc107 0%, #ffe082 100%);
+            color: #212529;
+            box-shadow: 0 1px 4px rgba(255,193,7,0.10);
+        }
+        .edit-btn:hover, .edit-btn:focus {
+            background: linear-gradient(90deg, #e0a800 0%, #ffd54f 100%);
+            color: #212529;
+            box-shadow: 0 2px 8px rgba(255,193,7,0.15);
+            transform: translateY(-1px) scale(1.02);
+        }
+        .delete-btn {
+            background: linear-gradient(90deg, #dc3545 0%, #ff6f6f 100%);
+            color: white;
+            box-shadow: 0 1px 4px rgba(220,53,69,0.10);
+        }
+        .delete-btn:hover, .delete-btn:focus {
+            background: linear-gradient(90deg, #c82333 0%, #ff5252 100%);
+            color: white;
+            box-shadow: 0 2px 8px rgba(220,53,69,0.15);
+            transform: translateY(-1px) scale(1.02);
+        }
+        .nav-links {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 12px;
+            margin: 20px 0;
+        }
+        .nav-links a {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            min-width: 120px;
+            justify-content: center;
+            padding: 10px 16px;
+            font-size: 0.95em;
+            font-weight: 500;
+            background: linear-gradient(90deg, #007bff 0%, #00c6ff 100%);
+            color: white;
+            text-decoration: none;
+            border: none;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0,123,255,0.10);
+            transition: background 0.2s, box-shadow 0.2s, transform 0.1s;
+            position: relative;
+            overflow: hidden;
+        }
+        .nav-links a:hover, .nav-links a:focus {
+            background: linear-gradient(90deg, #0056b3 0%, #00aaff 100%);
+            box-shadow: 0 4px 16px rgba(0,123,255,0.18);
+            transform: translateY(-2px) scale(1.03);
+        }
+        .nav-links a:active {
+            background: linear-gradient(90deg, #0056b3 0%, #007bff 100%);
+            box-shadow: 0 2px 6px rgba(0,123,255,0.10);
+            transform: scale(0.98);
+        }
+        .nav-links a span { font-size: 1.1em; display: inline-block; }
+        .create-btn {
+            background: linear-gradient(90deg, #28a745 0%, #00c851 100%) !important;
+            box-shadow: 0 2px 8px rgba(40,167,69,0.10);
+        }
+        .create-btn:hover, .create-btn:focus {
+            background: linear-gradient(90deg, #218838 0%, #00b34d 100%) !important;
+            box-shadow: 0 4px 16px rgba(40,167,69,0.18);
+        }
+        .pagination {
+            display: flex;
+            justify-content: center;
+            gap: 6px;
+            margin-top: 20px;
+        }
+        .pagination a, .pagination .current, .pagination span {
+            display: inline-block;
+            padding: 8px 16px;
+            font-size: 0.9em;
+            border-radius: 6px;
+            background: linear-gradient(90deg, #007bff 0%, #00c6ff 100%);
+            color: white;
+            text-decoration: none;
+            border: none;
+            box-shadow: 0 2px 8px rgba(0,123,255,0.10);
+            margin: 0 1px;
+            transition: background 0.2s, box-shadow 0.2s, transform 0.1s;
+        }
+        .pagination a:hover, .pagination a:focus {
+            background: linear-gradient(90deg, #0056b3 0%, #00aaff 100%);
+            box-shadow: 0 4px 16px rgba(0,123,255,0.18);
+            transform: translateY(-2px) scale(1.03);
+        }
+        .pagination .current {
+            background: #6c757d;
+            color: #fff;
+            font-weight: bold;
+        }
+        .empty-state {
+            text-align: center;
+            color: #666;
+            padding: 30px;
+        }
+        .stats {
+            background-color: #f8f9fa;
+            padding: 12px;
+            border-radius: 8px;
+            margin-bottom: 15px;
+            text-align: center;
+        }
+        .publication-status {
+            display: inline-block;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 0.75em;
+            font-weight: 500;
+            margin-left: 8px;
+        }
+        .status-published {
+            background: linear-gradient(90deg, #28a745 0%, #00c851 100%);
+            color: white;
+        }
+        .status-unpublished {
+            background: linear-gradient(90deg, #ffc107 0%, #ffe082 100%);
+            color: #212529;
+        }
+            font-size: 0.9em;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>📝 Мои посты</h1>
+        
+        <div class="nav-links">
+            <a href="{{ url_for('index') }}">Главная</a>
+            <a href="{{ url_for('blog.index') }}">Блог</a>
+            <a href="{{ url_for('blog.create') }}" class="create-btn">Создать пост</a>
+            <a href="{{ url_for('profile') }}">Профиль</a>
+            <a href="{{ url_for('auth.logout') }}">Выйти</a>
+        </div>
+
+        <div class="stats">
+            <strong>Всего постов:</strong> {{ pagination.total }} | 
+            <strong>Страница:</strong> {{ pagination.page }} из {{ pagination.pages }}
+        </div>
+
+        {% if posts %}
+            {% for post in posts %}
+                <div class="post-card">
+                    <h2 class="post-title">
+                        <a href="{{ url_for('blog.post', post_id=post.id) }}">{{ post.title }}</a>
+                        {% if post.is_published %}
+                            <span class="publication-status status-published">Опубликован</span>
+                        {% else %}
+                            <span class="publication-status status-unpublished">Неопубликован</span>
+                        {% endif %}
+                    </h2>
+                    <div class="post-meta">
+                        📅 {{ post.created_at.strftime('%d.%m.%Y %H:%M') }}
+                        {% if post.updated_at != post.created_at %}
+                            | ✏️ Обновлено: {{ post.updated_at.strftime('%d.%m.%Y %H:%M') }}
+                        {% endif %}
+                    </div>
+                    <div class="post-content">
+                        <div class="post-excerpt">
+                            {{ post.content[:200] }}{% if post.content|length > 200 %}...{% endif %}
+                        </div>
+                    </div>
+                    <div class="post-actions">
+                        <a href="{{ url_for('blog.post', post_id=post.id) }}" class="view-btn">👁️ Просмотр</a>
+                        <a href="{{ url_for('blog.edit', post_id=post.id) }}" class="edit-btn">✏️ Редактировать</a>
+                        <a href="#" onclick="deletePost({{ post.id }})" class="delete-btn">🗑️ Удалить</a>
+                    </div>
+                </div>
+            {% endfor %}
+        {% else %}
+            <div class="empty-state">
+                <div style="font-size: 2.5em; color: #bbb; margin-bottom: 10px;">🗒️</div>
+                <div style="font-weight: bold; font-size: 1.2em; margin-bottom: 6px;">Пока нет постов</div>
+                <div style="margin-bottom: 14px; font-size: 1em; color: #888;">Будьте первым, кто создаст пост в блоге!</div>
+                <a href="{{ url_for('blog.create') }}" class="create-btn" style="display: inline-flex; align-items: center; gap: 6px; padding: 6px 16px; font-size: 1em; min-width: unset; border-radius: 6px; height: 38px;">
+                    <span style="font-size: 1.3em;">➕</span> <span style="font-size: 1em;">Создать</span>
+                </a>
+            </div>
+        {% endif %}
+
+        <!-- Пагинация -->
+        {% if pagination.pages > 1 %}
+            <div class="pagination">
+                {% if pagination.has_prev %}
+                    <a href="{{ url_for('blog.my_posts', page=pagination.prev_num) }}">← Предыдущая</a>
+                {% endif %}
+                {% for page_num in pagination.iter_pages() %}
+                    {% if page_num %}
+                        {% if page_num != pagination.page %}
+                            <a href="{{ url_for('blog.my_posts', page=page_num) }}">{{ page_num }}</a>
+                        {% else %}
+                            <span class="current">{{ page_num }}</span>
+                        {% endif %}
+                    {% endif %}
+                {% endfor %}
+                {% if pagination.has_next %}
+                    <a href="{{ url_for('blog.my_posts', page=pagination.next_num) }}">Следующая →</a>
+                {% endif %}
+            </div>
+        {% endif %}
+    </div>
+
+    <script>
+        function deletePost(postId) {
+            if (confirm('Вы уверены, что хотите удалить этот пост? Это действие нельзя отменить.')) {
+                fetch(`/blog/delete/${postId}`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded',
+                    }
+                }).then(response => {
+                    if (response.ok) {
+                        window.location.reload();
+                    }
+                });
+            }
+        }
+    </script>
+</body>
+</html> 

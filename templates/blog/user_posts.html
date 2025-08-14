@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Посты {{ user.username }} - Flask Blog</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Arial, sans-serif;
+            background-color: #f5f5f5;
+            margin: 0;
+            padding: 15px;
+        }
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: white;
+            padding: 20px;
+            border-radius: 12px;
+            box-shadow: 0 4px 24px rgba(0,0,0,0.10);
+        }
+        h1 {
+            color: #222;
+            text-align: center;
+            margin-bottom: 20px;
+            font-weight: 700;
+            letter-spacing: 1px;
+        }
+        .user-info {
+            background-color: #f8f9fa;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            text-align: center;
+            border-left: 4px solid #007bff;
+        }
+        .user-info h2 {
+            margin: 0 0 8px 0;
+            color: #333;
+            font-size: 1.2em;
+        }
+        .user-stats {
+            color: #666;
+            font-size: 0.85em;
+        }
+        .post-card {
+            border: 1px solid #eee;
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 15px;
+            background: white;
+            transition: box-shadow 0.3s ease;
+        }
+        .post-card:hover {
+            box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+        }
+        .post-title {
+            font-size: 1.3em;
+            color: #333;
+            margin-bottom: 8px;
+        }
+        .post-title a {
+            color: #007bff;
+            text-decoration: none;
+        }
+        .post-title a:hover {
+            text-decoration: underline;
+        }
+        .post-meta {
+            color: #666;
+            font-size: 0.85em;
+            margin-bottom: 10px;
+        }
+        .post-content {
+            color: #555;
+            line-height: 1.5;
+            margin-bottom: 10px;
+        }
+        .post-excerpt {
+            color: #777;
+            font-style: italic;
+        }
+        .read-more {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            color: #007bff;
+            text-decoration: none;
+            font-size: 0.9em;
+            font-weight: 500;
+            transition: color 0.2s;
+        }
+        .read-more:hover {
+            color: #0056b3;
+        }
+        .nav-links {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 8px;
+            margin: 20px 0;
+        }
+        .nav-links a {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            min-width: 100px;
+            justify-content: center;
+            padding: 8px 12px;
+            font-size: 0.85em;
+            font-weight: 500;
+            background: linear-gradient(90deg, #007bff 0%, #00c6ff 100%);
+            color: #fff;
+            text-decoration: none;
+            border: none;
+            border-radius: 6px;
+            box-shadow: 0 2px 6px rgba(0,123,255,0.10);
+            transition: background 0.2s, box-shadow 0.2s, transform 0.1s;
+        }
+        .nav-links a:hover, .nav-links a:focus {
+            background: linear-gradient(90deg, #0056b3 0%, #00aaff 100%);
+            box-shadow: 0 3px 12px rgba(0,123,255,0.15);
+            transform: translateY(-1px) scale(1.02);
+        }
+        .nav-links a span { font-size: 1em; display: inline-block; }
+        .pagination {
+            display: flex;
+            justify-content: center;
+            gap: 4px;
+            margin-top: 20px;
+        }
+        .pagination a, .pagination .current, .pagination span {
+            display: inline-block;
+            padding: 6px 12px;
+            font-size: 0.85em;
+            border-radius: 5px;
+            background: linear-gradient(90deg, #007bff 0%, #00c6ff 100%);
+            color: #fff;
+            text-decoration: none;
+            border: none;
+            box-shadow: 0 2px 6px rgba(0,123,255,0.10);
+            margin: 0 1px;
+            transition: background 0.2s, box-shadow 0.2s, transform 0.1s;
+        }
+        .pagination a:hover, .pagination a:focus {
+            background: linear-gradient(90deg, #0056b3 0%, #00aaff 100%);
+            box-shadow: 0 3px 12px rgba(0,123,255,0.15);
+            transform: translateY(-1px) scale(1.02);
+        }
+        .pagination .current {
+            background: #6c757d;
+            color: #fff;
+            font-weight: bold;
+        }
+        .empty-state {
+            text-align: center;
+            color: #666;
+            padding: 30px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>📝 Посты пользователя</h1>
+        
+        <div class="nav-links">
+            <a href="{{ url_for('index') }}"><span>🏠</span>Главная</a>
+            <a href="{{ url_for('blog.index') }}"><span>📝</span>Блог</a>
+            {% if current_user.is_authenticated %}
+                <a href="{{ url_for('blog.create') }}"><span>✍️</span>Создать пост</a>
+                <a href="{{ url_for('blog.my_posts') }}"><span>📋</span>Мои посты</a>
+                <a href="{{ url_for('profile') }}"><span>👤</span>Профиль</a>
+                <a href="{{ url_for('auth.logout') }}"><span>🚪</span>Выйти</a>
+            {% else %}
+                <a href="{{ url_for('auth.login') }}"><span>🔑</span>Войти</a>
+                <a href="{{ url_for('auth.register') }}"><span>📝</span>Регистрация</a>
+            {% endif %}
+        </div>
+
+        <div class="user-info">
+            <h2>👤 {{ user.username }}</h2>
+            <div class="user-stats">
+                📧 {{ user.email }} | 
+                📅 Зарегистрирован: {{ user.created_at.strftime('%d.%m.%Y') }} | 
+                📝 Всего постов: {{ posts.total }}
+            </div>
+
+        </div>
+
+        {% if posts.items %}
+            {% for post in posts.items %}
+                <div class="post-card">
+                    <h2 class="post-title">
+                        <a href="{{ url_for('blog.post', post_id=post.id) }}">{{ post.title }}</a>
+                    </h2>
+                    <div class="post-meta">
+                        📅 {{ post.created_at.strftime('%d.%m.%Y %H:%M') }}
+                        {% if post.updated_at != post.created_at %}
+                            | ✏️ Обновлено: {{ post.updated_at.strftime('%d.%m.%Y %H:%M') }}
+                        {% endif %}
+                    </div>
+                    <div class="post-content">
+                        <div class="post-excerpt">
+                            {{ post.content[:200] }}{% if post.content|length > 200 %}...{% endif %}
+                        </div>
+                    </div>
+                    <a href="{{ url_for('blog.post', post_id=post.id) }}" class="read-more">
+                        <span>→</span>Читать далее
+                    </a>
+                </div>
+            {% endfor %}
+
+            <!-- Пагинация -->
+            {% if posts.pages > 1 %}
+                <div class="pagination">
+                    {% if posts.has_prev %}
+                        <a href="{{ url_for('blog.user_posts', user_id=user.id, page=posts.prev_num) }}">← Предыдущая</a>
+                    {% endif %}
+                    
+                    {% for page_num in posts.iter_pages() %}
+                        {% if page_num %}
+                            {% if page_num != posts.page %}
+                                <a href="{{ url_for('blog.user_posts', user_id=user.id, page=page_num) }}">{{ page_num }}</a>
+                            {% else %}
+                                <span class="current">{{ page_num }}</span>
+                            {% endif %}
+                        {% else %}
+                            <span>...</span>
+                        {% endif %}
+                    {% endfor %}
+                    
+                    {% if posts.has_next %}
+                        <a href="{{ url_for('blog.user_posts', user_id=user.id, page=posts.next_num) }}">Следующая →</a>
+                    {% endif %}
+                </div>
+            {% endif %}
+        {% else %}
+            <div class="empty-state">
+                <h3>📭 У пользователя {{ user.username }} пока нет постов</h3>
+                <p>Этот пользователь еще не создал ни одного поста.</p>
+            </div>
+        {% endif %}
+    </div>
+</body>
+</html> 

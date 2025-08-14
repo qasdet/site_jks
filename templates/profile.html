@@ -1,0 +1,598 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Профиль - Форум собственников</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #f8f9fa;
+            min-height: 100vh;
+            padding: 20px;
+            color: #333;
+        }
+        
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: white;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.08);
+        }
+        
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+            padding-bottom: 20px;
+            border-bottom: 1px solid #e9ecef;
+        }
+        
+        .header h1 {
+            color: #333;
+            font-size: 2em;
+            font-weight: 600;
+        }
+        
+        .profile-section {
+            background: #f8f9fa;
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+        
+        .profile-section h3 {
+            margin: 0 0 15px 0;
+            color: #333;
+            font-size: 1.1em;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .profile-info {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+        }
+        
+        .info-item {
+            background: white;
+            padding: 15px;
+            border-radius: 6px;
+            border: 1px solid #e9ecef;
+        }
+        
+        .info-label {
+            font-weight: 500;
+            color: #666;
+            font-size: 0.85em;
+            margin-bottom: 5px;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+        
+        .info-value {
+            color: #333;
+            font-size: 1em;
+            font-weight: 500;
+        }
+        
+        .security-status {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 12px 15px;
+            border-radius: 6px;
+            font-size: 0.9em;
+            font-weight: 500;
+            margin: 10px 0;
+        }
+        
+        .status-safe {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        
+        .status-warning {
+            background: #fff3cd;
+            color: #856404;
+            border: 1px solid #ffeaa7;
+        }
+        
+        .security-links {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-top: 15px;
+        }
+        
+        .security-links a {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            padding: 8px 12px;
+            font-size: 0.85em;
+            font-weight: 500;
+            background: #28a745;
+            color: white;
+            text-decoration: none;
+            border-radius: 4px;
+            transition: background 0.2s;
+        }
+        
+        .security-links a:hover {
+            background: #218838;
+        }
+        
+        .telegram-status {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin: 10px 0;
+        }
+        
+        .telegram-icon {
+            font-size: 1.1em;
+        }
+        
+        .flash {
+            padding: 10px 15px;
+            margin-bottom: 15px;
+            border-radius: 6px;
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+            font-size: 0.9em;
+        }
+        
+        .flash.error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+        
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 15px;
+            margin: 25px 0;
+        }
+        
+        .stat-card {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            text-align: center;
+            border: 1px solid #e9ecef;
+        }
+        
+        .stat-icon {
+            font-size: 1.8em;
+            margin-bottom: 10px;
+            color: #667eea;
+        }
+        
+        .stat-number {
+            font-size: 1.5em;
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 5px;
+        }
+        
+        .stat-label {
+            color: #666;
+            font-size: 0.85em;
+            font-weight: 500;
+        }
+        
+        .nav-links {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            justify-content: center;
+            margin: 25px 0;
+        }
+        
+        .nav-links a {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            padding: 8px 12px;
+            font-size: 0.85em;
+            font-weight: 500;
+            background: #007bff;
+            color: white;
+            text-decoration: none;
+            border-radius: 4px;
+            transition: background 0.2s;
+        }
+        
+        .nav-links a:hover {
+            background: #0056b3;
+        }
+        
+        .logout-link {
+            background: #dc3545 !important;
+        }
+        
+        .logout-link:hover {
+            background: #c82333 !important;
+        }
+        
+        .login-stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 15px;
+            margin: 20px 0;
+        }
+        
+        .recent-attempts {
+            margin: 20px 0;
+        }
+        
+        .recent-attempts h4 {
+            margin: 0 0 15px 0;
+            color: #333;
+            font-size: 1em;
+            font-weight: 600;
+        }
+        
+        .attempts-list {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+        
+        .attempt-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px 15px;
+            background: white;
+            border-radius: 8px;
+            border: 1px solid #e9ecef;
+            transition: all 0.2s;
+        }
+        
+        .attempt-item:hover {
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            transform: translateY(-1px);
+        }
+        
+        .attempt-item.success {
+            border-left: 4px solid #28a745;
+        }
+        
+        .attempt-item.failed {
+            border-left: 4px solid #dc3545;
+        }
+        
+        .attempt-icon {
+            font-size: 1.2em;
+            width: 24px;
+            text-align: center;
+        }
+        
+        .attempt-item.success .attempt-icon {
+            color: #28a745;
+        }
+        
+        .attempt-item.failed .attempt-icon {
+            color: #dc3545;
+        }
+        
+        .attempt-details {
+            flex: 1;
+        }
+        
+        .attempt-time {
+            font-weight: 500;
+            color: #333;
+            font-size: 0.9em;
+        }
+        
+        .attempt-ip {
+            color: #666;
+            font-size: 0.8em;
+            margin-top: 2px;
+        }
+        
+        .attempt-status {
+            font-weight: 500;
+            font-size: 0.85em;
+            padding: 4px 8px;
+            border-radius: 4px;
+            text-align: center;
+            min-width: 60px;
+        }
+        
+        .attempt-item.success .attempt-status {
+            background: #d4edda;
+            color: #155724;
+        }
+        
+        .attempt-item.failed .attempt-status {
+            background: #f8d7da;
+            color: #721c24;
+        }
+        
+        @media (max-width: 768px) {
+            .container {
+                padding: 20px;
+                margin: 10px;
+            }
+            
+            .header h1 {
+                font-size: 1.5em;
+            }
+            
+            .nav-links {
+                flex-direction: column;
+                align-items: center;
+            }
+            
+            .profile-info {
+                grid-template-columns: 1fr;
+            }
+            
+            .stats-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+            
+            .login-stats-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+            
+            .attempt-item {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 8px;
+            }
+            
+            .attempt-status {
+                align-self: flex-end;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Подключаем систему уведомлений -->
+        {% include 'base_notifications.html' %}
+        
+        <div class="header">
+            <h1>👤 Профиль</h1>
+        </div>
+        
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for category, message in messages %}
+                    <div class="flash {{ category }}">
+                        {% if category == 'error' %}
+                            <i class="bi bi-exclamation-triangle"></i>
+                        {% elif category == 'warning' %}
+                            <i class="bi bi-exclamation-circle"></i>
+                        {% else %}
+                            <i class="bi bi-check-circle"></i>
+                        {% endif %}
+                        {{ message }}
+                    </div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+        
+        <div class="nav-links">
+            <a href="{{ url_for('index') }}"><span>🏠</span>Главная</a>
+            <a href="{{ url_for('blog.index') }}"><span>📝</span>Блог</a>
+            <a href="{{ url_for('voting.index') }}"><span>🗳️</span>Голосования</a>
+            <a href="{{ url_for('forum.index') }}"><span>💬</span>Форум</a>
+            <a href="{{ url_for('blog.create') }}"><span>✍️</span>Создать пост</a>
+            <a href="{{ url_for('voting.create_voting') }}"><span>➕</span>Создать голосование</a>
+            <a href="{{ url_for('blog.my_posts') }}"><span>📋</span>Мои посты</a>
+            <a href="{{ url_for('voting.my_votings') }}"><span>📊</span>Мои голосования</a>
+            <a href="{{ url_for('voting.my_properties') }}"><span>🏠</span>Моя собственность</a>
+            <a href="{{ url_for('auth.logout') }}" class="logout-link"><span>🚪</span>Выйти</a>
+        </div>
+        
+        <div class="profile-section">
+            <h3>
+                <i class="bi bi-person-circle"></i>
+                Основная информация
+            </h3>
+            <div class="profile-info">
+                <div class="info-item">
+                    <div class="info-label">
+                        <i class="bi bi-person"></i>
+                        Имя пользователя
+                    </div>
+                    <div class="info-value">{{ current_user.username }}</div>
+                </div>
+                <div class="info-item">
+                    <div class="info-label">
+                        <i class="bi bi-envelope"></i>
+                        Email
+                    </div>
+                    <div class="info-value">{{ current_user.email }}</div>
+                </div>
+                <div class="info-item">
+                    <div class="info-label">
+                        <i class="bi bi-calendar3"></i>
+                        Дата регистрации
+                    </div>
+                    <div class="info-value">{{ current_user.created_at.strftime('%d.%m.%Y') }}</div>
+                </div>
+                <div class="info-item">
+                    <div class="info-label">
+                        <i class="bi bi-shield-check"></i>
+                        Статус
+                    </div>
+                    <div class="info-value">
+                        {% if current_user.is_admin %}
+                            <span class="security-status status-safe">
+                                <i class="bi bi-shield-fill-check"></i>
+                                Администратор
+                            </span>
+                        {% else %}
+                            <span class="security-status status-safe">
+                                <i class="bi bi-person-check"></i>
+                                Пользователь
+                            </span>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="profile-section">
+            <h3>
+                <i class="bi bi-shield-lock"></i>
+                Безопасность
+            </h3>
+            
+            {% if current_user.telegram_enabled %}
+                <div class="security-status status-safe">
+                    <i class="bi bi-shield-check"></i>
+                    2FA через Telegram включена
+                </div>
+                <div class="telegram-status">
+                    <i class="bi bi-telegram telegram-icon"></i>
+                    <span>ID: {{ current_user.telegram_chat_id or 'Не настроен' }}</span>
+                </div>
+                <div class="security-links">
+                    <a href="{{ url_for('telegram_bot.disable_2fa') }}">
+                        <i class="bi bi-shield-x"></i>
+                        Отключить
+                    </a>
+                    <a href="{{ url_for('telegram_bot.setup_2fa') }}">
+                        <i class="bi bi-arrow-clockwise"></i>
+                        Перенастроить
+                    </a>
+                </div>
+            {% else %}
+                <div class="security-status status-warning">
+                    <i class="bi bi-shield-exclamation"></i>
+                    2FA не настроена
+                </div>
+                <div class="security-links">
+                    <a href="{{ url_for('telegram_bot.setup_2fa') }}">
+                        <i class="bi bi-shield-check"></i>
+                        Включить 2FA
+                    </a>
+                </div>
+            {% endif %}
+        </div>
+        
+        <div class="profile-section">
+            <h3>
+                <i class="bi bi-clock-history"></i>
+                История попыток входа
+            </h3>
+            
+            <div class="login-stats-grid">
+                <div class="stat-card">
+                    <div class="stat-icon">
+                        <i class="bi bi-check-circle"></i>
+                    </div>
+                    <div class="stat-number">{{ login_stats.successful_attempts }}</div>
+                    <div class="stat-label">Успешных входов</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon">
+                        <i class="bi bi-x-circle"></i>
+                    </div>
+                    <div class="stat-number">{{ login_stats.failed_attempts }}</div>
+                    <div class="stat-label">Неудачных попыток</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon">
+                        <i class="bi bi-graph-up"></i>
+                    </div>
+                    <div class="stat-number">{{ login_stats.total_attempts }}</div>
+                    <div class="stat-label">Всего попыток</div>
+                </div>
+            </div>
+            
+            {% if login_stats.recent_attempts %}
+            <div class="recent-attempts">
+                <h4>Последние попытки входа:</h4>
+                <div class="attempts-list">
+                    {% for attempt in login_stats.recent_attempts %}
+                    <div class="attempt-item {% if attempt.success %}success{% else %}failed{% endif %}">
+                        <div class="attempt-icon">
+                            {% if attempt.success %}
+                                <i class="bi bi-check-circle"></i>
+                            {% else %}
+                                <i class="bi bi-x-circle"></i>
+                            {% endif %}
+                        </div>
+                        <div class="attempt-details">
+                            <div class="attempt-time">{{ attempt.attempted_at.strftime('%d.%m.%Y %H:%M') }}</div>
+                            <div class="attempt-ip">{{ attempt.ip_address }}</div>
+                        </div>
+                        <div class="attempt-status">
+                            {% if attempt.success %}Успех{% else %}Ошибка{% endif %}
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+            {% endif %}
+            
+            <div class="security-links">
+                <a href="{{ url_for('security.login_attempts') }}">
+                    <i class="bi bi-list-ul"></i>
+                    Полная история
+                </a>
+                <a href="{{ url_for('security.security_logs') }}">
+                    <i class="bi bi-shield-check"></i>
+                    Логи безопасности
+                </a>
+            </div>
+        </div>
+        
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-icon">
+                    <i class="bi bi-journal-text"></i>
+                </div>
+                <div class="stat-number">{{ user_stats.posts_count }}</div>
+                <div class="stat-label">Постов</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon">
+                    <i class="bi bi-chat-dots"></i>
+                </div>
+                <div class="stat-number">{{ user_stats.forum_posts_count }}</div>
+                <div class="stat-label">Сообщений</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon">
+                    <i class="bi bi-check2-square"></i>
+                </div>
+                <div class="stat-number">{{ user_stats.votings_count }}</div>
+                <div class="stat-label">Голосований</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon">
+                    <i class="bi bi-house-door"></i>
+                </div>
+                <div class="stat-number">{{ user_stats.properties_count }}</div>
+                <div class="stat-label">Объектов</div>
+            </div>
+        </div>
+        
+    </div>
+</body>
+</html>

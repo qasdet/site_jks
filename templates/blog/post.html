@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ post.title }} - Flask Blog</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Arial, sans-serif;
+            background-color: #f5f5f5;
+            margin: 0;
+            padding: 20px;
+        }
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: white;
+            padding: 30px;
+            border-radius: 16px;
+            box-shadow: 0 4px 24px rgba(0,0,0,0.10);
+        }
+        h1 {
+            color: #222;
+            margin-bottom: 20px;
+            line-height: 1.3;
+            font-weight: 700;
+            letter-spacing: 1px;
+        }
+        .post-meta {
+            color: #666;
+            font-size: 0.85em;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid #eee;
+        }
+        .post-content {
+            color: #333;
+            line-height: 1.6;
+            font-size: 1em;
+            margin-bottom: 20px;
+        }
+        .post-content p {
+            margin-bottom: 15px;
+        }
+        .nav-links {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 8px;
+            margin: 20px 0;
+        }
+        .nav-links a {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            min-width: 100px;
+            justify-content: center;
+            padding: 8px 12px;
+            font-size: 0.85em;
+            font-weight: 500;
+            background: linear-gradient(90deg, #007bff 0%, #00c6ff 100%);
+            color: #fff;
+            text-decoration: none;
+            border: none;
+            border-radius: 6px;
+            box-shadow: 0 2px 6px rgba(0,123,255,0.10);
+            transition: background 0.2s, box-shadow 0.2s, transform 0.1s;
+        }
+        .nav-links a:hover, .nav-links a:focus {
+            background: linear-gradient(90deg, #0056b3 0%, #00aaff 100%);
+            box-shadow: 0 3px 12px rgba(0,123,255,0.15);
+            transform: translateY(-1px) scale(1.02);
+        }
+        .nav-links a span { font-size: 1em; display: inline-block; }
+        .edit-btn {
+            background: linear-gradient(90deg, #ffc107 0%, #ffe082 100%) !important;
+            color: #212529 !important;
+            box-shadow: 0 1px 4px rgba(255,193,7,0.10);
+        }
+        .edit-btn:hover, .edit-btn:focus {
+            background: linear-gradient(90deg, #e0a800 0%, #ffd54f 100%) !important;
+            color: #212529 !important;
+            box-shadow: 0 2px 8px rgba(255,193,7,0.15);
+        }
+        .delete-btn {
+            background: linear-gradient(90deg, #dc3545 0%, #ff6f6f 100%) !important;
+            box-shadow: 0 1px 4px rgba(220,53,69,0.10);
+        }
+        .delete-btn:hover, .delete-btn:focus {
+            background: linear-gradient(90deg, #c82333 0%, #ff5252 100%) !important;
+            box-shadow: 0 2px 8px rgba(220,53,69,0.15);
+        }
+        .author-info {
+            background-color: #f8f9fa;
+            padding: 12px;
+            border-radius: 8px;
+            margin-top: 20px;
+            border-left: 4px solid #007bff;
+            font-size: 0.9em;
+        }
+        .flash {
+            padding: 12px 16px;
+            margin-bottom: 20px;
+            border-radius: 10px;
+            background: linear-gradient(90deg, #d4edda 0%, #c3e6cb 100%);
+            color: #155724;
+            border: 1px solid #c3e6cb;
+            font-weight: 500;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        {% with messages = get_flashed_messages() %}
+            {% if messages %}
+                {% for message in messages %}
+                    <div class="flash">{{ message }}</div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+
+        <div class="nav-links">
+            <a href="{{ url_for('index') }}"><span>🏠</span>Главная</a>
+            <a href="{{ url_for('blog.index') }}"><span>📝</span>Блог</a>
+            {% if current_user.is_authenticated %}
+                <a href="{{ url_for('blog.create') }}"><span>✍️</span>Создать пост</a>
+                <a href="{{ url_for('blog.my_posts') }}"><span>📋</span>Мои посты</a>
+                {% if current_user.id == post.user_id %}
+                    <a href="{{ url_for('blog.edit', post_id=post.id) }}" class="edit-btn"><span>✏️</span>Редактировать</a>
+                    <a href="#" onclick="deletePost()" class="delete-btn"><span>🗑️</span>Удалить</a>
+                    <a href="{{ url_for('blog.set_post_password', post_id=post.id) }}" style="background: linear-gradient(90deg, #ffc107 0%, #ffca2c 100%); color: #212529;"><span>🔐</span>Пароль</a>
+                {% endif %}
+                <a href="{{ url_for('profile') }}"><span>👤</span>Профиль</a>
+                <a href="{{ url_for('auth.logout') }}"><span>🚪</span>Выйти</a>
+            {% else %}
+                <a href="{{ url_for('auth.login') }}"><span>🔑</span>Войти</a>
+                <a href="{{ url_for('auth.register') }}"><span>📝</span>Регистрация</a>
+            {% endif %}
+        </div>
+
+        <h1>{{ post.title }}</h1>
+        
+        <div class="post-meta">
+            📅 {{ post.created_at.strftime('%d.%m.%Y в %H:%M') }} | 
+            👤 <a href="{{ url_for('blog.user_posts', user_id=post.user.id) }}">{{ post.user.username }}</a>
+            {% if post.updated_at != post.created_at %}
+                | ✏️ Обновлено: {{ post.updated_at.strftime('%d.%m.%Y в %H:%M') }}
+            {% endif %}
+        </div>
+
+        {% if post.image %}
+        <div style="text-align:center; margin-bottom: 18px;">
+            <img src="{{ url_for('static', filename='uploads/' ~ post.image) }}" alt="Картинка поста" style="max-width: 100%; max-height: 340px; border-radius: 10px; box-shadow: 0 2px 12px rgba(0,0,0,0.08);">
+        </div>
+        {% endif %}
+        <div class="post-content{% if has_password and not has_access %} blurred-content{% endif %}" data-blur="{{ '1' if has_password and not has_access else '0' }}">
+            {{ content|safe }}
+        </div>
+        
+        {% if has_password and not has_access %}
+        <div class="password-form" style="margin-top: 20px; padding: 20px; background: #f8f9fa; border-radius: 8px; border: 1px solid #dee2e6;">
+            <h4 style="margin-bottom: 15px; color: #495057;">
+                <span style="margin-right: 8px;">🔐</span>Этот пост защищен паролем
+            </h4>
+            <form method="POST" action="{{ url_for('blog.check_post_password', post_id=post.id) }}" style="display: flex; gap: 10px; align-items: center; flex-wrap: wrap;">
+                <input type="password" 
+                       name="password" 
+                       placeholder="Введите пароль" 
+                       required 
+                       style="flex: 1; min-width: 200px; padding: 10px; border: 1px solid #ced4da; border-radius: 4px; font-size: 14px;">
+                <button type="submit" 
+                        style="padding: 10px 20px; background: linear-gradient(90deg, #28a745 0%, #20c997 100%); color: white; border: none; border-radius: 4px; cursor: pointer; font-weight: 500; transition: all 0.2s;">
+                    <span style="margin-right: 5px;">🔓</span>Получить доступ
+                </button>
+            </form>
+        </div>
+        {% endif %}
+
+        <div class="author-info">
+            <strong>Об авторе:</strong> {{ post.user.username }}
+            <br>
+            <a href="{{ url_for('blog.user_posts', user_id=post.user.id) }}">
+                Посмотреть все посты автора →
+            </a>
+        </div>
+    </div>
+
+    {% if current_user.id == post.user_id %}
+    <script>
+        function deletePost() {
+            if (confirm('Вы уверены, что хотите удалить этот пост? Это действие нельзя отменить.')) {
+                fetch('{{ url_for("blog.delete", post_id=post.id) }}', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded',
+                    }
+                }).then(response => {
+                    if (response.ok) {
+                        window.location.href = '{{ url_for("blog.index") }}';
+                    }
+                });
+            }
+        }
+    </script>
+    {% endif %}
+
+    <script>
+        // JS-замыливание текста для защищённых постов
+        function blurText(text, blurRatio = 0.6) {
+            const blurChars = ['█', '▓', '▒', '░', '▄', '▌', '▐', '▀'];
+            return text.split(/(\s+)/).map(word => {
+                if (word.length <= 2 || /^\s+$/.test(word)) return word;
+                let chars = word.split('');
+                let numToBlur = Math.max(1, Math.floor(chars.length * blurRatio));
+                let positions = [];
+                while (positions.length < numToBlur) {
+                    let pos = Math.floor(Math.random() * chars.length);
+                    if (!positions.includes(pos)) positions.push(pos);
+                }
+                positions.forEach(pos => {
+                    chars[pos] = blurChars[Math.floor(Math.random() * blurChars.length)];
+                });
+                return chars.join('');
+            }).join('');
+        }
+
+        document.addEventListener('DOMContentLoaded', function() {
+            document.querySelectorAll('.blurred-content[data-blur="1"]').forEach(function(el) {
+                let original = el.innerText;
+                el.innerText = blurText(original, 0.6);
+            });
+        });
+    </script>
+</body>
+</html> 

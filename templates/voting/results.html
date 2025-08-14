@@ -1,0 +1,288 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Результаты голосования - {{ voting.title }}</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f5f5f5;
+            margin: 0;
+            padding: 20px;
+        }
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        h1 {
+            color: #333;
+            margin-bottom: 20px;
+            line-height: 1.3;
+        }
+        .voting-info {
+            background-color: #f8f9fa;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 30px;
+            border-left: 4px solid #007bff;
+        }
+        .voting-meta {
+            color: #666;
+            font-size: 0.9em;
+            margin-bottom: 15px;
+        }
+        .voting-description {
+            color: #333;
+            line-height: 1.8;
+            margin-bottom: 20px;
+        }
+        .voting-question {
+            background-color: #e7f3ff;
+            padding: 15px;
+            border-radius: 5px;
+            margin-bottom: 30px;
+            border-left: 4px solid #007bff;
+        }
+        .results-summary {
+            background-color: #d4edda;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 30px;
+            border-left: 4px solid #28a745;
+        }
+        .result-item {
+            margin-bottom: 20px;
+            padding: 15px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            background-color: white;
+        }
+        .result-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+        .result-text {
+            font-size: 1.1em;
+            font-weight: bold;
+            color: #333;
+        }
+        .result-stats {
+            color: #666;
+            font-size: 0.9em;
+        }
+        .result-bar {
+            background-color: #e9ecef;
+            border-radius: 10px;
+            height: 25px;
+            overflow: hidden;
+            position: relative;
+        }
+        .result-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #007bff, #0056b3);
+            transition: width 0.5s ease;
+            position: relative;
+        }
+        .result-fill.winner {
+            background: linear-gradient(90deg, #28a745, #218838);
+        }
+        .result-percentage {
+            position: absolute;
+            right: 10px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: white;
+            font-weight: bold;
+            text-shadow: 1px 1px 2px rgba(0,0,0,0.5);
+        }
+        .nav-links {
+            text-align: center;
+            margin: 20px 0;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            justify-content: center;
+        }
+        .nav-links a {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 8px 12px;
+            background: linear-gradient(135deg, #007bff 0%, #0056b3 100%);
+            color: white;
+            text-decoration: none;
+            border-radius: 8px;
+            font-size: 0.9em;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            box-shadow: 0 2px 8px rgba(0,123,255,0.2);
+            white-space: nowrap;
+        }
+        .nav-links a:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(0,123,255,0.3);
+            background: linear-gradient(135deg, #0056b3 0%, #004085 100%);
+        }
+        @media (max-width: 768px) {
+            .nav-links {
+                flex-direction: column;
+                align-items: center;
+            }
+            .nav-links a {
+                width: 100%;
+                max-width: 300px;
+                justify-content: center;
+            }
+        }
+        .property-stats {
+            margin-top: 40px;
+        }
+        .property-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+        .property-table th,
+        .property-table td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+        }
+        .property-table th {
+            background-color: #f8f9fa;
+            font-weight: bold;
+            color: #333;
+        }
+        .property-table tr:hover {
+            background-color: #f8f9fa;
+        }
+        .winner-badge {
+            background-color: #28a745;
+            color: white;
+            padding: 4px 8px;
+            border-radius: 12px;
+            font-size: 0.8em;
+            font-weight: bold;
+        }
+        .chart-container {
+            margin: 30px 0;
+            text-align: center;
+        }
+    </style>
+
+</head>
+<body>
+    {% include 'base_notifications.html' %}
+    <div class="container">
+        <h1>📊 Результаты голосования: {{ voting.title }}</h1>
+        
+        <div class="voting-info">
+            <div class="voting-meta">
+                📅 Создано: {{ voting.created_at.strftime('%d.%m.%Y в %H:%M') }} | 
+                👤 {{ voting.creator.username }} |
+                🕐 Период: {{ voting.start_date.strftime('%d.%m.%Y %H:%M') }} - {{ voting.end_date.strftime('%d.%m.%Y %H:%M') }}
+            </div>
+            
+            <div class="voting-description">
+                <strong>Описание:</strong><br>
+                {{ voting.description }}
+            </div>
+        </div>
+
+        <div class="voting-question">
+            <strong>Вопрос для голосования:</strong><br>
+            {{ voting.question }}
+        </div>
+
+        <div class="results-summary">
+            <h3>📈 Итоги голосования</h3>
+            <p><strong>Всего голосов:</strong> {{ total_votes }}</p>
+            <p><strong>Статус:</strong> 
+                {% if voting.is_open() %}
+                    🟢 Активно
+                {% else %}
+                    🔴 Завершено
+                {% endif %}
+            </p>
+        </div>
+
+        {% if total_votes > 0 %}
+            <!-- Статистика голосования -->
+            <div class="chart-container">
+                <h3>📊 Статистика голосования</h3>
+                <div style="text-align: center; font-size: 2em; color: #007bff; margin: 20px 0;">
+                    Всего голосов: <strong>{{ total_votes }}</strong>
+                </div>
+            </div>
+
+            <!-- Детальные результаты -->
+            <h3>📋 Детальные результаты</h3>
+            {% set max_votes = results.values() | map(attribute='votes') | max %}
+            {% for option_id, result in results.items() %}
+                <div class="result-item">
+                    <div class="result-header">
+                        <div class="result-text">
+                            {{ result.text }}
+                            {% if result.votes == max_votes and max_votes > 0 %}
+                                <span class="winner-badge">🏆 Победитель</span>
+                            {% endif %}
+                        </div>
+                        <div class="result-stats">
+                            {{ result.votes }} голосов ({{ result.percentage }}%)
+                        </div>
+                    </div>
+                    <div class="result-bar">
+                        <div class="result-fill {% if result.votes == max_votes and max_votes > 0 %}winner{% endif %}" 
+                             style="width: {{ result.percentage }}%">
+                            <span class="result-percentage">{{ result.percentage }}%</span>
+                        </div>
+                    </div>
+                </div>
+            {% endfor %}
+
+            <!-- Статистика по собственности -->
+            {% if property_stats %}
+                <div class="property-stats">
+                    <h3>🏠 Статистика по собственности</h3>
+                    <table class="property-table">
+                        <thead>
+                            <tr>
+                                <th>Улица</th>
+                                <th>Дом</th>
+                                <th>№ Квартира</th>
+                                <th>Площадь (кв.м)</th>
+                                <th>Владелец</th>
+                                <th>Голос</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for number, stats in property_stats.items() %}
+                                <tr>                                    
+                                    <td>{{ stats.street }}</td>
+                                    <td>{{ stats.house_number }}</td>
+                                    <td>{{ number }}</td>
+                                    <td>{{ stats.area }}</td>
+                                    <td>{{ stats.owner }}</td>
+                                    <td>{{ stats.vote }}</td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            {% endif %}
+        {% else %}
+            <div class="results-summary">
+                <h3>📭 Нет голосов</h3>
+                <p>В данном голосовании пока не было подано ни одного голоса.</p>
+            </div>
+        {% endif %}
+    </div>
+</body>
+</html> 

@@ -1,0 +1,17 @@
+[project]
+name = "flask"
+version = "0.1.0"
+description = "Flask web application with authentication and database models"
+requires-python = ">=3.8"
+dependencies = [
+    "flask>=2.3.0",
+    "flask-sqlalchemy>=3.0.0",
+    "flask-login>=0.6.0",
+    "flask-wtf>=1.1.0",
+    "python-dotenv>=1.0.0",
+    "werkzeug>=2.3.0"
+]
+
+[build-system]
+requires = ["setuptools>=61.0", "wheel"]
+build-backend = "setuptools.build_meta"

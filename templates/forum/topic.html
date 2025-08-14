@@ -1,0 +1,325 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ topic.title }} - Форум жильцов</title>
+    <style>
+        body { font-family: 'Segoe UI', Arial, sans-serif; background: #f5f5f5; margin: 0; padding: 15px; }
+        .container { max-width: 900px; margin: 0 auto; background: #fff; padding: 20px; border-radius: 12px; box-shadow: 0 4px 24px rgba(0,0,0,0.10); }
+        h1 { color: #222; margin-bottom: 15px; font-weight: 700; letter-spacing: 1px; }
+        .nav-links {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 12px;
+            margin-bottom: 20px;
+            margin-top: 5px;
+        }
+        .nav-links a {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            min-width: 120px;
+            justify-content: center;
+            padding: 10px 16px;
+            font-size: 0.95em;
+            font-weight: 500;
+            background: linear-gradient(90deg, #007bff 0%, #00c6ff 100%);
+            color: #fff;
+            text-decoration: none;
+            border: none;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0,123,255,0.10);
+            transition: background 0.2s, box-shadow 0.2s, transform 0.1s;
+            position: relative;
+            overflow: hidden;
+        }
+        .nav-links a:hover, .nav-links a:focus {
+            background: linear-gradient(90deg, #0056b3 0%, #00aaff 100%);
+            box-shadow: 0 4px 16px rgba(0,123,255,0.18);
+            transform: translateY(-2px) scale(1.03);
+        }
+        .nav-links a:active {
+            background: linear-gradient(90deg, #0056b3 0%, #007bff 100%);
+            box-shadow: 0 2px 6px rgba(0,123,255,0.10);
+            transform: scale(0.98);
+        }
+        .nav-links a span { font-size: 1.1em; display: inline-block; }
+        .topic-header { background: #f8f9fa; padding: 15px; border-radius: 8px; margin-bottom: 20px; border-left: 4px solid #007bff; }
+        .topic-image {
+            max-width: 100%;
+            max-height: 300px;
+            border-radius: 8px;
+            margin: 15px 0;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+        .topic-meta { color: #666; font-size: 0.85em; margin-top: 8px; }
+        .posts { margin-bottom: 20px; }
+        .post { border: 1px solid #eee; border-radius: 8px; padding: 12px; margin-bottom: 12px; background: #fafbfc; }
+        .post-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
+        .post-author { font-weight: bold; color: #007bff; font-size: 0.9em; }
+        .post-date { color: #666; font-size: 0.8em; }
+        .post-content { line-height: 1.4; color: #333; margin-bottom: 8px; font-size: 0.9em; }
+        .post-actions { border-top: 1px solid #eee; padding-top: 8px; }
+        .post-actions a {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            padding: 4px 10px;
+            font-size: 0.8em;
+            font-weight: 500;
+            border-radius: 5px;
+            border: none;
+            text-decoration: none;
+            margin-right: 6px;
+            margin-top: 2px;
+            transition: background 0.2s, box-shadow 0.2s, transform 0.1s;
+        }
+        .edit-btn {
+            background: linear-gradient(90deg, #ffc107 0%, #ffe082 100%);
+            color: #212529;
+        }
+        .edit-btn:hover, .edit-btn:focus {
+            background: linear-gradient(90deg, #e0a800 0%, #ffd54f 100%);
+            color: #212529;
+            transform: translateY(-1px) scale(1.02);
+        }
+        .delete-btn {
+            background: linear-gradient(90deg, #dc3545 0%, #ff6f6f 100%);
+            color: #fff;
+        }
+        .delete-btn:hover, .delete-btn:focus {
+            background: linear-gradient(90deg, #c82333 0%, #ff5252 100%);
+            color: #fff;
+            transform: translateY(-1px) scale(1.02);
+        }
+        .reply-btn {
+            background: linear-gradient(90deg, #28a745 0%, #20c997 100%);
+            color: #fff;
+        }
+        .reply-btn:hover, .reply-btn:focus {
+            background: linear-gradient(90deg, #218838 0%, #1ea085 100%);
+            color: #fff;
+            transform: translateY(-1px) scale(1.02);
+        }
+        .replies { margin-left: 20px; margin-top: 8px; }
+        .reply-indicator { 
+            display: inline-flex; 
+            align-items: center; 
+            gap: 3px; 
+            color: #666; 
+            font-size: 0.8em; 
+            margin-bottom: 6px; 
+        }
+        .reply-indicator::before {
+            content: '';
+            width: 2px;
+            height: 14px;
+            background: linear-gradient(90deg, #007bff 0%, #00c6ff 100%);
+            border-radius: 1px;
+        }
+        .reply-form { background: #f8f9fa; padding: 15px; border-radius: 8px; margin-top: 20px; }
+        .form-group { margin-bottom: 12px; }
+        label { display: block; margin-bottom: 4px; color: #555; font-weight: 500; }
+        textarea { 
+            width: 100%; 
+            padding: 10px 14px; 
+            border: 2px solid #e1e5e9; 
+            border-radius: 8px; 
+            font-size: 16px; 
+            font-family: 'Segoe UI', Arial, sans-serif; 
+            min-height: 100px; 
+            resize: vertical; 
+            box-sizing: border-box;
+            transition: border-color 0.2s, box-shadow 0.2s;
+            background: #fafbfc;
+        }
+        textarea:focus {
+            outline: none;
+            border-color: #007bff;
+            box-shadow: 0 0 0 3px rgba(0,123,255,0.1);
+            background: #fff;
+        }
+        button[type="submit"] {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            padding: 10px 20px;
+            font-size: 0.95em;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            background: linear-gradient(90deg, #007bff 0%, #00c6ff 100%);
+            color: #fff;
+            font-weight: 500;
+            box-shadow: 0 2px 8px rgba(0,123,255,0.10);
+            transition: background 0.2s, box-shadow 0.2s, transform 0.1s;
+        }
+        button[type="submit"]:hover, button[type="submit"]:focus {
+            background: linear-gradient(90deg, #0056b3 0%, #00aaff 100%);
+            box-shadow: 0 4px 16px rgba(0,123,255,0.18);
+            transform: translateY(-2px) scale(1.03);
+        }
+        button[type="submit"] span { font-size: 1.1em; display: inline-block; }
+        .flash { 
+            padding: 10px 14px; 
+            margin-bottom: 15px; 
+            border-radius: 8px; 
+            background: linear-gradient(90deg, #d4edda 0%, #c3e6cb 100%); 
+            color: #155724; 
+            border: 1px solid #c3e6cb; 
+            font-weight: 500;
+        }
+        .post.highlighted {
+            background: linear-gradient(135deg, #fff3cd 0%, #ffeaa7 100%);
+            border: 3px solid #ffc107;
+            box-shadow: 0 6px 20px rgba(255, 193, 7, 0.3);
+            animation: highlight-pulse 3s ease-in-out;
+            position: relative;
+        }
+        
+        .post.highlighted::before {
+            content: '🔔';
+            position: absolute;
+            top: -10px;
+            right: -10px;
+            background: #ffc107;
+            color: white;
+            border-radius: 50%;
+            width: 30px;
+            height: 30px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 14px;
+            animation: bell-shake 0.5s ease-in-out 3;
+        }
+        
+        @keyframes highlight-pulse {
+            0% { 
+                transform: scale(1); 
+                box-shadow: 0 6px 20px rgba(255, 193, 7, 0.3);
+            }
+            50% { 
+                transform: scale(1.02); 
+                box-shadow: 0 8px 25px rgba(255, 193, 7, 0.4);
+            }
+            100% { 
+                transform: scale(1); 
+                box-shadow: 0 6px 20px rgba(255, 193, 7, 0.3);
+            }
+        }
+        
+        @keyframes bell-shake {
+            0%, 100% { transform: rotate(0deg); }
+            25% { transform: rotate(-10deg); }
+            75% { transform: rotate(10deg); }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Подключаем систему уведомлений -->
+        {% include 'base_notifications.html' %}
+        
+        <div class="nav-links">
+            <a href="{{ url_for('index') }}"><span>🏠</span>Главная</a>
+            <a href="{{ url_for('forum.index') }}"><span>💬</span>Форум</a>
+        </div>
+
+        {% if current_user.is_authenticated and topic.user_id == current_user.id %}
+            <div class="nav-links" style="margin-top: 10px;">
+                <a href="{{ url_for('forum.set_topic_password', topic_id=topic.id) }}" style="background: linear-gradient(90deg, #ffc107 0%, #ffca2c 100%); color: #212529;">
+                    <span>🔐</span>Управление паролем
+                </a>
+            </div>
+        {% endif %}
+        {% with messages = get_flashed_messages() %}
+            {% if messages %}
+                {% for message in messages %}
+                    <div class="flash">{{ message }}</div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+        <div class="topic-header">
+            <h1>{{ topic.title }}</h1>
+            {% if topic.image_url %}
+                <img src="{{ topic.image_url }}" alt="{{ topic.title }}" class="topic-image" onerror="this.style.display='none';">
+            {% endif %}
+            <div class="topic-meta">
+                👤 {{ topic.user.username }} | 📅 {{ topic.created_at.strftime('%d.%m.%Y %H:%M') }} | 💬 {{ posts|length }} сообщений
+            </div>
+        </div>
+        <div class="posts">
+            {% for post in posts %}
+                {% include 'forum/post_tree.html' %}
+            {% endfor %}
+        </div>
+        {% if current_user.is_authenticated %}
+            <div class="reply-form">
+                <h3>💬 Добавить сообщение</h3>
+                <form method="POST" action="{{ url_for('forum.reply', topic_id=topic.id) }}">
+                    <div class="form-group">
+                        <label for="content">Ваше сообщение:</label>
+                        <textarea id="content" name="content" required placeholder="Введите ваше сообщение..."></textarea>
+                    </div>
+                    <button type="submit"><span>📤</span>Отправить</button>
+                </form>
+            </div>
+        {% else %}
+            <div class="reply-form">
+                <p>Для добавления сообщения необходимо <a href="{{ url_for('auth.login') }}">войти в систему</a></p>
+            </div>
+        {% endif %}
+    </div>
+    
+    <script>
+        function deletePost(postId) {
+            if (confirm('Вы уверены, что хотите удалить это сообщение?')) {
+                const form = document.createElement('form');
+                form.method = 'POST';
+                form.action = '/forum/post/' + postId + '/delete';
+                document.body.appendChild(form);
+                form.submit();
+            }
+        }
+        
+        // Выделение сообщения при переходе по ссылке из уведомления
+        document.addEventListener('DOMContentLoaded', function() {
+            const hash = window.location.hash;
+            if (hash && hash.startsWith('#post-')) {
+                const postId = hash.substring(6);
+                const postElement = document.getElementById('post-' + postId);
+                if (postElement) {
+                    // Небольшая задержка для лучшего эффекта
+                    setTimeout(function() {
+                        // Плавно прокручиваем к сообщению
+                        postElement.scrollIntoView({ 
+                            behavior: 'smooth', 
+                            block: 'center',
+                            inline: 'nearest'
+                        });
+                        
+                        // Добавляем выделение
+                        postElement.classList.add('highlighted');
+                        
+                        // Убираем выделение через 5 секунд
+                        setTimeout(function() {
+                            postElement.classList.remove('highlighted');
+                        }, 5000);
+                        
+                        // Обновляем URL без хэша после выделения
+                        setTimeout(function() {
+                            if (window.history && window.history.replaceState) {
+                                window.history.replaceState(null, null, window.location.pathname);
+                            }
+                        }, 1000);
+                        
+                    }, 300);
+                }
+            }
+        });
+    </script>
+</body>
+</html>

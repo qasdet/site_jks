@@ -1,0 +1,259 @@
+{% extends 'admin/base.html' %}
+{% block title %}Голосования | Админ-панель{% endblock %}
+{% block page_title %}Управление голосованиями{% endblock %}
+{% block content %}
+<div class="card">
+  <div class="card-header">
+    <div class="row align-items-center">
+      <div class="col">
+        <h5 class="mb-0">
+          <i class="bi bi-check2-square"></i>
+          Список голосований ({{ votings.total }})
+        </h5>
+      </div>
+    </div>
+  </div>
+  
+  <!-- Фильтры -->
+  <div class="card-body border-bottom">
+    <form method="GET" class="row g-3">
+      <div class="col-md-3">
+        <input type="text" class="form-control" name="search" placeholder="Поиск по названию" value="{{ search }}">
+      </div>
+      <div class="col-md-2">
+        <input type="text" class="form-control" name="creator" placeholder="Создатель" value="{{ creator }}">
+      </div>
+      <div class="col-md-2">
+        <select class="form-select" name="status">
+          <option value="">Все статусы</option>
+          <option value="active" {% if status == 'active' %}selected{% endif %}>Активные</option>
+          <option value="inactive" {% if status == 'inactive' %}selected{% endif %}>Неактивные</option>
+          <option value="open" {% if status == 'open' %}selected{% endif %}>Открытые</option>
+          <option value="closed" {% if status == 'closed' %}selected{% endif %}>Закрытые</option>
+          <option value="upcoming" {% if status == 'upcoming' %}selected{% endif %}>Предстоящие</option>
+        </select>
+      </div>
+      <div class="col-md-2">
+        <select class="form-select" name="sort">
+          <option value="created_at" {% if sort_by == 'created_at' %}selected{% endif %}>По дате создания</option>
+          <option value="title" {% if sort_by == 'title' %}selected{% endif %}>По названию</option>
+          <option value="start_date" {% if sort_by == 'start_date' %}selected{% endif %}>По дате начала</option>
+          <option value="end_date" {% if sort_by == 'end_date' %}selected{% endif %}>По дате окончания</option>
+        </select>
+      </div>
+      <div class="col-md-2">
+        <select class="form-select" name="order">
+          <option value="desc" {% if sort_order == 'desc' %}selected{% endif %}>По убыванию</option>
+          <option value="asc" {% if sort_order == 'asc' %}selected{% endif %}>По возрастанию</option>
+        </select>
+      </div>
+      <div class="col-md-1">
+        <div class="btn-group w-100">
+          <button type="submit" class="btn btn-primary">
+            <i class="bi bi-search"></i>
+          </button>
+          <a href="{{ url_for('admin.votings') }}" class="btn btn-outline-secondary">
+            <i class="bi bi-arrow-clockwise"></i>
+          </a>
+        </div>
+      </div>
+    </form>
+  </div>
+  
+  <!-- Массовые действия -->
+  <div class="card-body border-bottom">
+    <form method="POST" action="{{ url_for('admin.votings_mass_action') }}" id="massActionForm">
+      <div class="row align-items-center">
+        <div class="col-auto">
+          <div class="form-check">
+            <input class="form-check-input" type="checkbox" id="selectAll">
+            <label class="form-check-label" for="selectAll">
+              Выбрать все
+            </label>
+          </div>
+        </div>
+        <div class="col">
+          <select class="form-select" name="action" id="massAction">
+            <option value="">Массовые действия</option>
+            <option value="activate">Активировать</option>
+            <option value="deactivate">Деактивировать</option>
+            <option value="delete">Удалить</option>
+          </select>
+        </div>
+        <div class="col-auto">
+          <button type="submit" class="btn btn-warning" id="massActionBtn" disabled>
+            Применить
+          </button>
+        </div>
+      </div>
+    </form>
+  </div>
+  
+  <!-- Таблица -->
+  <div class="card-body">
+    <div class="table-responsive">
+      <table class="table table-striped table-hover">
+        <thead class="table-dark">
+          <tr>
+            <th width="50">
+              <input type="checkbox" class="form-check-input" id="selectAllTable">
+            </th>
+            <th>ID</th>
+            <th>Название</th>
+            <th>Создатель</th>
+            <th>Период</th>
+            <th>Статус</th>
+            <th>Голосов</th>
+            <th>Действия</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for voting in votings.items %}
+          <tr>
+            <td>
+              <input type="checkbox" class="form-check-input voting-checkbox" name="voting_ids" value="{{ voting.id }}">
+            </td>
+            <td>{{ voting.id }}</td>
+            <td>
+              <strong>{{ voting.title }}</strong>
+              <br>
+              <small class="text-muted">{{ voting.question[:100] }}{% if voting.question|length > 100 %}...{% endif %}</small>
+            </td>
+            <td>{{ voting.creator.username }}</td>
+            <td>
+              <small>
+                {{ voting.start_date.strftime('%d.%m.%Y') }} - {{ voting.end_date.strftime('%d.%m.%Y') }}
+              </small>
+            </td>
+            <td>
+              {% set now = datetime.utcnow() %}
+              {% if voting.is_active %}
+                {% if voting.start_date <= now and voting.end_date >= now %}
+                  <span class="badge bg-success">Открыто</span>
+                {% elif voting.start_date > now %}
+                  <span class="badge bg-info">Предстоящее</span>
+                {% else %}
+                  <span class="badge bg-secondary">Завершено</span>
+                {% endif %}
+              {% else %}
+                <span class="badge bg-danger">Неактивно</span>
+              {% endif %}
+            </td>
+            <td>
+              <span class="badge bg-primary">{{ voting.votes|length }}</span>
+            </td>
+            <td>
+              <div class="btn-group" role="group">
+                <a href="{{ url_for('admin.voting_detail', voting_id=voting.id) }}" 
+                   class="btn btn-sm btn-outline-info" title="Детали">
+                  <i class="bi bi-eye"></i>
+                </a>
+                <form method="POST" action="{{ url_for('admin.toggle_voting_status', voting_id=voting.id) }}" style="display: inline;">
+                  <button type="submit" class="btn btn-sm btn-outline-{{ 'danger' if voting.is_active else 'success' }}" 
+                          title="{{ 'Деактивировать' if voting.is_active else 'Активировать' }}">
+                    <i class="bi bi-{{ 'pause' if voting.is_active else 'play' }}"></i>
+                  </button>
+                </form>
+                <form method="POST" action="{{ url_for('admin.delete_voting', voting_id=voting.id) }}" style="display: inline;">
+                  <button type="submit" class="btn btn-sm btn-outline-danger" 
+                          onclick="return confirm('Удалить голосование \"{{ voting.title }}\"?')"
+                          title="Удалить">
+                    <i class="bi bi-trash"></i>
+                  </button>
+                </form>
+              </div>
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+    
+    <!-- Пагинация -->
+    {% if votings.pages > 1 %}
+    <nav aria-label="Навигация по страницам">
+      <ul class="pagination justify-content-center">
+        {% if votings.has_prev %}
+          <li class="page-item">
+            <a class="page-link" href="{{ url_for('admin.votings', page=votings.prev_num, search=search, creator=creator, status=status, sort=sort_by, order=sort_order) }}">
+              <i class="bi bi-chevron-left"></i>
+            </a>
+          </li>
+        {% endif %}
+        
+        {% for page_num in votings.iter_pages() %}
+          {% if page_num %}
+            <li class="page-item {{ 'active' if page_num == votings.page else '' }}">
+              <a class="page-link" href="{{ url_for('admin.votings', page=page_num, search=search, creator=creator, status=status, sort=sort_by, order=sort_order) }}">
+                {{ page_num }}
+              </a>
+            </li>
+          {% else %}
+            <li class="page-item disabled"><span class="page-link">...</span></li>
+          {% endif %}
+        {% endfor %}
+        
+        {% if votings.has_next %}
+          <li class="page-item">
+            <a class="page-link" href="{{ url_for('admin.votings', page=votings.next_num, search=search, creator=creator, status=status, sort=sort_by, order=sort_order) }}">
+              <i class="bi bi-chevron-right"></i>
+            </a>
+          </li>
+        {% endif %}
+      </ul>
+    </nav>
+    {% endif %}
+  </div>
+</div>
+
+<script>
+// Обработка массовых действий
+document.getElementById('selectAll').addEventListener('change', function() {
+  const checkboxes = document.querySelectorAll('.voting-checkbox');
+  checkboxes.forEach(cb => cb.checked = this.checked);
+  updateMassActionButton();
+});
+
+document.getElementById('selectAllTable').addEventListener('change', function() {
+  const checkboxes = document.querySelectorAll('.voting-checkbox');
+  checkboxes.forEach(cb => cb.checked = this.checked);
+  document.getElementById('selectAll').checked = this.checked;
+  updateMassActionButton();
+});
+
+document.querySelectorAll('.voting-checkbox').forEach(cb => {
+  cb.addEventListener('change', updateMassActionButton);
+});
+
+function updateMassActionButton() {
+  const checkedBoxes = document.querySelectorAll('.voting-checkbox:checked');
+  const massActionBtn = document.getElementById('massActionBtn');
+  const massAction = document.getElementById('massAction');
+  
+  massActionBtn.disabled = checkedBoxes.length === 0 || massAction.value === '';
+}
+
+document.getElementById('massAction').addEventListener('change', updateMassActionButton);
+
+document.getElementById('massActionForm').addEventListener('submit', function(e) {
+  const checkedBoxes = document.querySelectorAll('.voting-checkbox:checked');
+  const action = document.getElementById('massAction').value;
+  
+  if (checkedBoxes.length === 0) {
+    e.preventDefault();
+    alert('Выберите хотя бы одно голосование');
+    return;
+  }
+  
+  if (!action) {
+    e.preventDefault();
+    alert('Выберите действие');
+    return;
+  }
+  
+  if (action === 'delete' && !confirm('Вы уверены, что хотите удалить выбранные голосования?')) {
+    e.preventDefault();
+  }
+});
+</script>
+{% endblock %} 

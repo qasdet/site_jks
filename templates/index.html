@@ -1,0 +1,264 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Главная - Форум собственников</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #f8f9fa;
+            min-height: 100vh;
+            padding: 20px;
+            color: #333;
+        }
+        
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            background: white;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.08);
+        }
+        
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+            padding-bottom: 20px;
+            border-bottom: 1px solid #e9ecef;
+        }
+        
+        .header h1 {
+            color: #333;
+            font-size: 2.2em;
+            font-weight: 600;
+        }
+        
+        .welcome-message {
+            text-align: center;
+            margin: 25px 0;
+            padding: 15px;
+            background: #d4edda;
+            border: 1px solid #c3e6cb;
+            border-radius: 8px;
+            color: #155724;
+            font-size: 1em;
+            font-weight: 500;
+        }
+        
+        .time-card {
+            background: #667eea;
+            color: white;
+            padding: 20px;
+            border-radius: 8px;
+            text-align: center;
+            margin: 25px 0;
+        }
+        
+        .time-card h3 {
+            font-size: 1.1em;
+            margin-bottom: 8px;
+        }
+        
+        .time-card .current-time {
+            font-size: 1.5em;
+            font-weight: 600;
+        }
+        
+        .nav-links {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            justify-content: center;
+            margin: 30px 0;
+            padding: 20px;
+            background: #f8f9fa;
+            border-radius: 8px;
+            border: 1px solid #e9ecef;
+        }
+        
+        .nav-link {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 8px 12px;
+            background: #007bff;
+            color: white;
+            text-decoration: none;
+            border-radius: 4px;
+            font-weight: 500;
+            font-size: 0.85em;
+            transition: background 0.2s;
+        }
+        
+        .nav-link:hover {
+            background: #0056b3;
+        }
+        
+        .nav-link.blog-btn {
+            background: #28a745;
+        }
+        
+        .nav-link.blog-btn:hover {
+            background: #218838;
+        }
+        
+        .nav-link.voting-btn {
+            background: #fd7e14;
+        }
+        
+        .nav-link.voting-btn:hover {
+            background: #e55a00;
+        }
+        
+        .nav-link.forum-btn {
+            background: #6f42c1;
+        }
+        
+        .nav-link.forum-btn:hover {
+            background: #5a32a3;
+        }
+        
+        .nav-link.create-btn {
+            background: #dc3545;
+        }
+        
+        .nav-link.create-btn:hover {
+            background: #c82333;
+        }
+        
+        .nav-link.logout-btn {
+            background: #6c757d;
+        }
+        
+        .nav-link.logout-btn:hover {
+            background: #495057;
+        }
+        
+        @media (max-width: 768px) {
+            .container {
+                padding: 20px;
+                margin: 10px;
+            }
+            
+            .header h1 {
+                font-size: 1.8em;
+            }
+            
+            .nav-links {
+                flex-direction: column;
+                align-items: center;
+            }
+        }
+        
+        @keyframes pulse {
+            0% {
+                transform: scale(1);
+                opacity: 1;
+            }
+            50% {
+                transform: scale(1.1);
+                opacity: 0.8;
+            }
+            100% {
+                transform: scale(1);
+                opacity: 1;
+            }
+        }
+    </style>
+</head>
+<body>
+    
+    <div class="container">
+        <div class="header">
+            <h1>🏠 Добро пожаловать в Форум собственников!</h1>
+        </div>
+        
+        {% if current_user.is_authenticated %}
+            <div class="welcome-message">
+                <i class="bi bi-person-check"></i>
+                Добро пожаловать, {{ current_user.username }}!
+            </div>
+        {% else %}
+            <div class="welcome-message">
+                <i class="bi bi-info-circle"></i>
+                Для доступа к функциям системы необходимо войти в систему
+            </div>
+        {% endif %}
+        
+        <div class="time-card">
+            <h3><i class="bi bi-clock"></i> Текущее время</h3>
+            <div class="current-time" id="current-time"></div>
+        </div>
+        
+        <div class="nav-links">
+            {% if current_user.is_authenticated %}
+                <a href="{{ url_for('blog.index') }}" class="nav-link blog-btn">
+                    <i class="bi bi-journal-text"></i>
+                    Блог
+                </a>
+                <a href="{{ url_for('voting.index') }}" class="nav-link voting-btn">
+                    <i class="bi bi-check2-square"></i>
+                    Голосования
+                </a>
+                <a href="{{ url_for('forum.index') }}" class="nav-link forum-btn">
+                    <i class="bi bi-chat-dots"></i>
+                    Форум
+                </a>
+
+                <a href="{{ url_for('blog.create') }}" class="nav-link create-btn">
+                    <i class="bi bi-plus-circle"></i>
+                    Создать пост
+                </a>
+                <a href="{{ url_for('voting.create_voting') }}" class="nav-link create-btn">
+                    <i class="bi bi-plus-square"></i>
+                    Создать голосование
+                </a>
+                <a href="{{ url_for('profile') }}" class="nav-link">
+                    <i class="bi bi-person-circle"></i>
+                    Профиль
+                </a>
+                <a href="{{ url_for('auth.logout') }}" class="nav-link logout-btn">
+                    <i class="bi bi-box-arrow-right"></i>
+                    Выйти
+                </a>
+            {% else %}
+                <a href="{{ url_for('auth.login') }}" class="nav-link">
+                    <i class="bi bi-box-arrow-in-right"></i>
+                    Войти
+                </a>
+                <a href="{{ url_for('auth.register') }}" class="nav-link">
+                    <i class="bi bi-person-plus"></i>
+                    Регистрация
+                </a>
+            {% endif %}
+        </div>
+    </div>
+    
+    <script>
+        function updateTime() {
+            const now = new Date();
+            const timeString = now.toLocaleString('ru-RU', {
+                year: 'numeric',
+                month: '2-digit',
+                day: '2-digit',
+                hour: '2-digit',
+                minute: '2-digit',
+                second: '2-digit'
+            });
+            document.getElementById('current-time').textContent = timeString;
+        }
+        
+        updateTime();
+        setInterval(updateTime, 1000);
+    </script>
+</body>
+</html>

@@ -1,0 +1,299 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Мои голоса - Система голосования</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Arial, sans-serif;
+            background-color: #f5f5f5;
+            margin: 0;
+            padding: 15px;
+        }
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            background: white;
+            padding: 20px;
+            border-radius: 12px;
+            box-shadow: 0 4px 24px rgba(0,0,0,0.10);
+        }
+        h1 {
+            color: #222;
+            text-align: center;
+            margin-bottom: 20px;
+            font-weight: 700;
+            letter-spacing: 1px;
+        }
+        .vote-card {
+            border: 1px solid #eee;
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 15px;
+            background: #fafbfc;
+            transition: box-shadow 0.2s;
+        }
+        .vote-card:hover {
+            box-shadow: 0 4px 15px rgba(0,0,0,0.07);
+        }
+        .voting-title {
+            font-size: 1.2em;
+            color: #333;
+            margin-bottom: 8px;
+        }
+        .voting-title a {
+            color: #007bff;
+            text-decoration: none;
+        }
+        .voting-title a:hover {
+            text-decoration: underline;
+        }
+        .vote-meta {
+            color: #666;
+            font-size: 0.85em;
+            margin-bottom: 12px;
+        }
+        .vote-choice {
+            background: linear-gradient(90deg, #d4edda 0%, #c3e6cb 100%);
+            color: #155724;
+            padding: 8px 12px;
+            border-radius: 6px;
+            font-weight: 600;
+            margin-bottom: 8px;
+            display: inline-block;
+        }
+        .property-info {
+            background: #e7f3ff;
+            border: 1px solid #b3d9ff;
+            border-radius: 6px;
+            padding: 8px 12px;
+            margin-bottom: 8px;
+            font-size: 0.9em;
+            color: #0056b3;
+        }
+        .voting-status {
+            display: inline-block;
+            padding: 3px 10px;
+            border-radius: 16px;
+            font-size: 0.75em;
+            font-weight: 600;
+            margin-bottom: 8px;
+        }
+        .status-active {
+            background: linear-gradient(90deg, #d4edda 0%, #c3e6cb 100%);
+            color: #155724;
+        }
+        .status-upcoming {
+            background: linear-gradient(90deg, #fff3cd 0%, #ffeaa7 100%);
+            color: #856404;
+        }
+        .status-ended {
+            background: linear-gradient(90deg, #f8d7da 0%, #fab1a0 100%);
+            color: #721c24;
+        }
+        .nav-links {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 10px;
+            margin: 20px 0;
+        }
+        .nav-links a, .pagination a, .pagination .current, .vote-actions a {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            min-width: 100px;
+            justify-content: center;
+            padding: 8px 12px;
+            font-size: 0.85em;
+            font-weight: 500;
+            background: linear-gradient(90deg, #007bff 0%, #00c6ff 100%);
+            color: #fff;
+            text-decoration: none;
+            border: none;
+            border-radius: 6px;
+            box-shadow: 0 2px 6px rgba(0,123,255,0.10);
+            transition: background 0.2s, box-shadow 0.2s, transform 0.1s;
+            position: relative;
+            overflow: hidden;
+            margin: 0 1px 3px 0;
+        }
+        .nav-links a:hover, .nav-links a:focus, .pagination a:hover, .pagination a:focus, .vote-actions a:hover, .vote-actions a:focus {
+            background: linear-gradient(90deg, #0056b3 0%, #00aaff 100%);
+            box-shadow: 0 3px 12px rgba(0,123,255,0.15);
+            transform: translateY(-1px) scale(1.02);
+        }
+        .nav-links a:active, .pagination a:active, .vote-actions a:active {
+            background: linear-gradient(90deg, #0056b3 0%, #007bff 100%);
+            box-shadow: 0 1px 4px rgba(0,123,255,0.10);
+            transform: scale(0.98);
+        }
+        .nav-links a span, .pagination a span, .vote-actions a span { font-size: 1em; display: inline-block; }
+        .create-btn {
+            background: linear-gradient(90deg, #28a745 0%, #00c851 100%) !important;
+            box-shadow: 0 2px 6px rgba(40,167,69,0.10);
+        }
+        .create-btn:hover, .create-btn:focus {
+            background: linear-gradient(90deg, #218838 0%, #00b34d 100%) !important;
+            box-shadow: 0 3px 12px rgba(40,167,69,0.15);
+        }
+        .vote-actions .view-btn {
+            background: linear-gradient(90deg, #007bff 0%, #00c6ff 100%);
+            color: #fff;
+        }
+        .vote-actions .view-btn:hover, .vote-actions .view-btn:focus {
+            background: linear-gradient(90deg, #0056b3 0%, #00aaff 100%);
+            color: #fff;
+        }
+        .vote-actions .results-btn {
+            background: linear-gradient(90deg, #28a745 0%, #20c997 100%);
+            color: #fff;
+        }
+        .vote-actions .results-btn:hover, .vote-actions .results-btn:focus {
+            background: linear-gradient(90deg, #218838 0%, #1ea085 100%);
+            color: #fff;
+        }
+        .pagination {
+            display: flex;
+            justify-content: center;
+            gap: 4px;
+            margin-top: 20px;
+        }
+        .pagination a, .pagination .current, .pagination span {
+            display: inline-block;
+            padding: 6px 12px;
+            font-size: 0.85em;
+            border-radius: 5px;
+            background: linear-gradient(90deg, #007bff 0%, #00c6ff 100%);
+            color: #fff;
+            text-decoration: none;
+            border: none;
+            box-shadow: 0 2px 6px rgba(0,123,255,0.10);
+            margin: 0 1px;
+            transition: background 0.2s, box-shadow 0.2s, transform 0.1s;
+        }
+        .pagination a:hover, .pagination a:focus {
+            background: linear-gradient(90deg, #0056b3 0%, #00aaff 100%);
+            box-shadow: 0 3px 12px rgba(0,123,255,0.15);
+            transform: translateY(-1px) scale(1.02);
+        }
+        .pagination .current {
+            background: #6c757d;
+            color: #fff;
+            font-weight: bold;
+        }
+        .empty-state {
+            text-align: center;
+            color: #666;
+            padding: 30px;
+        }
+        .stats {
+            background-color: #f8f9fa;
+            padding: 10px;
+            border-radius: 6px;
+            margin-bottom: 15px;
+            text-align: center;
+            font-size: 0.9em;
+        }
+        .vote-actions {
+            margin-top: 12px;
+            padding-top: 12px;
+            border-top: 1px solid #eee;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🗳️ Мои голоса</h1>
+        
+        <div class="nav-links">
+            <a href="{{ url_for('index') }}"><span>🏠</span>Главная</a>
+            <a href="{{ url_for('voting.index') }}"><span>🗳️</span>Голосования</a>
+            <a href="{{ url_for('blog.index') }}"><span>📝</span>Блог</a>
+            <a href="{{ url_for('forum.index') }}"><span>💬</span>Форум</a>
+            <a href="{{ url_for('voting.create_voting') }}" class="create-btn"><span>➕</span>Создать голосование</a>
+            <a href="{{ url_for('profile') }}"><span>👤</span>Профиль</a>
+        </div>
+
+        <div class="stats">
+            Всего голосов: {{ votes.total }}
+        </div>
+
+        {% if votes.items %}
+            {% for vote in votes.items %}
+                <div class="vote-card">
+                    <div class="voting-title">
+                        <a href="{{ url_for('voting.view_voting', voting_id=vote.voting.id) }}">
+                            {{ vote.voting.title }}
+                        </a>
+                    </div>
+                    
+                    <div class="vote-meta">
+                        📅 Проголосовал {{ vote.created_at.strftime('%d.%m.%Y в %H:%M') }}
+                        {% if vote.voting.is_open() %}
+                            <span class="voting-status status-active">Активно</span>
+                        {% elif vote.voting.start_date > datetime.utcnow() %}
+                            <span class="voting-status status-upcoming">Ожидает</span>
+                        {% else %}
+                            <span class="voting-status status-ended">Завершено</span>
+                        {% endif %}
+                    </div>
+                    
+                    <div class="vote-choice">
+                        ✅ Ваш выбор: {{ vote.option.text }}
+                    </div>
+                    
+                    <div class="property-info">
+                        🏠 Собственность №{{ vote.property.number }} ({{ "%.1f"|format(vote.property.area) }} м²)
+                    </div>
+                    
+                    <div class="vote-actions">
+                        <a href="{{ url_for('voting.view_voting', voting_id=vote.voting.id) }}" class="view-btn">
+                            👁️ Просмотреть голосование
+                        </a>
+                        <a href="{{ url_for('voting.results', voting_id=vote.voting.id) }}" class="results-btn">
+                            📊 Результаты
+                        </a>
+                    </div>
+                </div>
+            {% endfor %}
+
+            {% if votes.pages > 1 %}
+                <div class="pagination">
+                    {% if votes.has_prev %}
+                        <a href="{{ url_for('voting.my_votes', page=votes.prev_num) }}">← Предыдущая</a>
+                    {% endif %}
+                    
+                    {% for page_num in votes.iter_pages() %}
+                        {% if page_num %}
+                            {% if page_num != votes.page %}
+                                <a href="{{ url_for('voting.my_votes', page=page_num) }}">{{ page_num }}</a>
+                            {% else %}
+                                <span class="current">{{ page_num }}</span>
+                            {% endif %}
+                        {% else %}
+                            <span>...</span>
+                        {% endif %}
+                    {% endfor %}
+                    
+                    {% if votes.has_next %}
+                        <a href="{{ url_for('voting.my_votes', page=votes.next_num) }}">Следующая →</a>
+                    {% endif %}
+                </div>
+            {% endif %}
+        {% else %}
+            <div class="empty-state">
+                <h3>🗳️ У вас пока нет голосов</h3>
+                <p>Участвуйте в голосованиях, чтобы увидеть здесь свои голоса!</p>
+                <a href="{{ url_for('voting.index') }}" class="create-btn" style="display: inline-flex; margin-top: 10px;">
+                    <span>🗳️</span>Перейти к голосованиям
+                </a>
+            </div>
+        {% endif %}
+    </div>
+</body>
+</html> 

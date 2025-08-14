@@ -1,0 +1,146 @@
+{% extends 'admin/base.html' %}
+{% block title %}{{ voting.title }} | Админ-панель{% endblock %}
+{% block page_title %}Детали голосования{% endblock %}
+{% block content %}
+<div class="row">
+  <div class="col-md-8">
+    <!-- Информация о голосовании -->
+    <div class="card mb-4">
+      <div class="card-header">
+        <h5 class="mb-0">
+          <i class="bi bi-info-circle"></i>
+          Информация о голосовании
+        </h5>
+      </div>
+      <div class="card-body">
+        <div class="row">
+          <div class="col-md-6">
+            <h4>{{ voting.title }}</h4>
+            <p class="text-muted">{{ voting.description }}</p>
+            <hr>
+            <p><strong>Вопрос:</strong> {{ voting.question }}</p>
+            <p><strong>Создатель:</strong> {{ voting.creator.username }}</p>
+            <p><strong>Дата создания:</strong> {{ voting.created_at.strftime('%d.%m.%Y в %H:%M') }}</p>
+          </div>
+          <div class="col-md-6">
+            <div class="card bg-light">
+              <div class="card-body">
+                <h6>Период голосования</h6>
+                <p><strong>Начало:</strong> {{ voting.start_date.strftime('%d.%m.%Y в %H:%M') }}</p>
+                <p><strong>Окончание:</strong> {{ voting.end_date.strftime('%d.%m.%Y в %H:%M') }}</p>
+                
+                <h6 class="mt-3">Статус</h6>
+                {% set now = datetime.utcnow() %}
+                {% if voting.is_active %}
+                  {% if voting.start_date <= now and voting.end_date >= now %}
+                    <span class="badge bg-success">Открыто</span>
+                  {% elif voting.start_date > now %}
+                    <span class="badge bg-info">Предстоящее</span>
+                  {% else %}
+                    <span class="badge bg-secondary">Завершено</span>
+                  {% endif %}
+                {% else %}
+                  <span class="badge bg-danger">Неактивно</span>
+                {% endif %}
+                
+                <h6 class="mt-3">Статистика</h6>
+                <p><strong>Всего голосов:</strong> {{ total_votes }}</p>
+                <p><strong>Вариантов ответа:</strong> {{ voting.options|length }}</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Результаты голосования -->
+    <div class="card">
+      <div class="card-header">
+        <h5 class="mb-0">
+          <i class="bi bi-bar-chart"></i>
+          Результаты голосования
+        </h5>
+      </div>
+      <div class="card-body">
+        {% if results %}
+          {% for option_id, result in results.items() %}
+          <div class="mb-3">
+            <div class="d-flex justify-content-between align-items-center mb-1">
+              <strong>{{ result.text }}</strong>
+              <span class="badge bg-primary">{{ result.votes }} голосов</span>
+            </div>
+            <div class="progress" style="height: 25px;">
+              <div class="progress-bar" role="progressbar" 
+                   style="width: {{ result.percentage }}%;" 
+                   aria-valuenow="{{ result.percentage }}" 
+                   aria-valuemin="0" 
+                   aria-valuemax="100">
+                {{ result.percentage }}%
+              </div>
+            </div>
+          </div>
+          {% endfor %}
+        {% else %}
+          <div class="text-center text-muted">
+            <i class="bi bi-inbox" style="font-size: 3rem;"></i>
+            <p class="mt-2">Пока нет голосов</p>
+          </div>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+
+  <div class="col-md-4">
+    <!-- Действия -->
+    <div class="card mb-4">
+      <div class="card-header">
+        <h6 class="mb-0">
+          <i class="bi bi-gear"></i>
+          Действия
+        </h6>
+      </div>
+      <div class="card-body">
+        <div class="d-grid gap-2">
+          <form method="POST" action="{{ url_for('admin.toggle_voting_status', voting_id=voting.id) }}">
+            <button type="submit" class="btn btn-{{ 'danger' if voting.is_active else 'success' }} w-100">
+              <i class="bi bi-{{ 'pause' if voting.is_active else 'play' }}"></i>
+              {{ 'Деактивировать' if voting.is_active else 'Активировать' }}
+            </button>
+          </form>
+          
+          <form method="POST" action="{{ url_for('admin.delete_voting', voting_id=voting.id) }}"
+                onsubmit="return confirm('Удалить голосование \"{{ voting.title }}\"?')">
+            <button type="submit" class="btn btn-outline-danger w-100">
+              <i class="bi bi-trash"></i>
+              Удалить
+            </button>
+          </form>
+          
+          <a href="{{ url_for('admin.votings') }}" class="btn btn-outline-secondary w-100">
+            <i class="bi bi-arrow-left"></i>
+            Назад к списку
+          </a>
+        </div>
+      </div>
+    </div>
+
+    <!-- Варианты ответов -->
+    <div class="card">
+      <div class="card-header">
+        <h6 class="mb-0">
+          <i class="bi bi-list-check"></i>
+          Варианты ответов
+        </h6>
+      </div>
+      <div class="card-body">
+        {% for option in voting.options %}
+        <div class="d-flex justify-content-between align-items-center mb-2">
+          <span>{{ option.text }}</span>
+          <span class="badge bg-secondary">{{ option.votes|length }}</span>
+        </div>
+        {% endfor %}
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %} 

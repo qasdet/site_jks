@@ -1,0 +1,546 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Мои голосования - Система голосования</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #f5f5f5;
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            background: #fff;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.07);
+        }
+        
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid #eee;
+        }
+        
+        .header h1 {
+            color: #333;
+            font-size: 2em;
+            font-weight: 700;
+            margin-bottom: 10px;
+            background: none;
+            -webkit-text-fill-color: initial;
+        }
+        
+        .nav-links {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            justify-content: center;
+            margin: 20px 0 25px 0;
+            padding: 0;
+            background: none;
+            border-radius: 0;
+            border: none;
+        }
+        
+        .nav-link, .nav-link.create-btn, .nav-link.logout-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 7px 16px;
+            background: #007bff;
+            color: #fff;
+            text-decoration: none;
+            border-radius: 5px;
+            font-weight: 500;
+            font-size: 14px;
+            transition: background 0.2s, box-shadow 0.2s, transform 0.15s;
+            box-shadow: none;
+            border: none;
+            position: relative;
+            overflow: hidden;
+            min-width: unset;
+        }
+        
+        .nav-link.create-btn {
+            background: #28a745;
+        }
+        
+        .nav-link.logout-btn {
+            background: #dc3545;
+        }
+        
+        .nav-link:hover, .nav-link.create-btn:hover, .nav-link.logout-btn:hover {
+            background: #0056b3;
+            color: #fff;
+            transform: translateY(-1px) scale(1.04);
+            box-shadow: 0 2px 5px rgba(0,0,0,0.13);
+        }
+        
+        .nav-link.create-btn:hover {
+            background: #218838;
+        }
+        
+        .nav-link.logout-btn:hover {
+            background: #c82333;
+        }
+        
+        .stats-card {
+            background: #e7f3ff;
+            color: #333;
+            padding: 15px;
+            border-radius: 7px;
+            text-align: center;
+            margin-bottom: 25px;
+            box-shadow: none;
+        }
+        
+        .stats-card h3 {
+            font-size: 1.2em;
+            margin-bottom: 5px;
+        }
+        
+        .stats-card .count {
+            font-size: 2em;
+            font-weight: 700;
+        }
+        
+        .votings-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 16px;
+            margin-top: 20px;
+        }
+        
+        .voting-card {
+            background: #fff;
+            border-radius: 10px;
+            padding: 18px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.07);
+            border: 1px solid #f0f0f0;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .voting-card::before {
+            display: none;
+        }
+        
+        .voting-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 16px rgba(0,0,0,0.10);
+        }
+        
+        .voting-title {
+            font-size: 1.1em;
+            color: #333;
+            margin-bottom: 10px;
+            font-weight: 700;
+        }
+        
+        .voting-title a {
+            color: #007bff;
+            text-decoration: none;
+            transition: color 0.2s;
+        }
+        
+        .voting-title a:hover {
+            color: #0056b3;
+        }
+        
+        .voting-status {
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            padding: 5px 12px;
+            border-radius: 12px;
+            font-size: 0.9em;
+            font-weight: 600;
+            margin-bottom: 10px;
+            box-shadow: none;
+        }
+        
+        .status-active {
+            background: #d4edda;
+            color: #155724;
+        }
+        
+        .status-upcoming {
+            background: #fff3cd;
+            color: #856404;
+        }
+        
+        .status-ended {
+            background: #f8d7da;
+            color: #721c24;
+        }
+        
+        .voting-meta {
+            background: #f8f9fa;
+            padding: 8px 12px;
+            border-radius: 5px;
+            color: #666;
+            font-size: 0.9em;
+            margin: 10px 0;
+            border-left: 4px solid #007bff;
+        }
+        
+        .voting-description {
+            color: #555;
+            line-height: 1.5;
+            margin-bottom: 12px;
+            font-size: 0.95em;
+        }
+        
+        .voting-actions {
+            display: flex;
+            gap: 7px;
+            margin-top: 10px;
+            flex-wrap: wrap;
+        }
+        
+        .action-btn, .view-btn, .results-btn, .edit-btn, .delete-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            padding: 7px 14px;
+            border: none;
+            border-radius: 5px;
+            font-size: 13px;
+            font-weight: 500;
+            text-decoration: none;
+            transition: background 0.2s, box-shadow 0.2s, transform 0.15s;
+            cursor: pointer;
+            position: relative;
+            overflow: hidden;
+            box-shadow: none;
+        }
+        
+        .view-btn {
+            background: #007bff;
+            color: #fff;
+        }
+        
+        .view-btn:hover {
+            background: #0056b3;
+        }
+        
+        .results-btn {
+            background: #28a745;
+            color: #fff;
+        }
+        
+        .results-btn:hover {
+            background: #218838;
+        }
+        
+        .edit-btn {
+            background: #ffc107;
+            color: #212529;
+        }
+        
+        .edit-btn:hover {
+            background: #e0a800;
+        }
+        
+        .delete-btn {
+            background: #dc3545;
+            color: #fff;
+        }
+        
+        .delete-btn:hover {
+            background: #c82333;
+        }
+        
+        .pagination {
+            display: flex;
+            justify-content: center;
+            gap: 7px;
+            margin-top: 30px;
+            flex-wrap: wrap;
+        }
+        
+        .pagination a, .pagination .current, .pagination span {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            padding: 7px 13px;
+            font-size: 13px;
+            font-weight: 500;
+            border-radius: 5px;
+            background: #007bff;
+            color: #fff;
+            text-decoration: none;
+            border: none;
+            box-shadow: none;
+            transition: background 0.2s, transform 0.15s;
+            min-width: 32px;
+        }
+        
+        .pagination a:hover {
+            background: #0056b3;
+            transform: translateY(-1px);
+        }
+        
+        .pagination .current {
+            background: #6c757d;
+            font-weight: 700;
+        }
+        
+        .empty-state {
+            text-align: center;
+            padding: 40px 10px;
+            background: #f8f9fa;
+            border-radius: 10px;
+            border: 2px dashed #dee2e6;
+        }
+        
+        .empty-state .icon {
+            font-size: 3em;
+            color: #dee2e6;
+            margin-bottom: 15px;
+        }
+        
+        .empty-state h3 {
+            color: #666;
+            font-size: 1.2em;
+            margin-bottom: 10px;
+        }
+        
+        .empty-state p {
+            color: #888;
+            font-size: 1em;
+            margin-bottom: 20px;
+        }
+        
+        .empty-state .create-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 8px 20px;
+            background: #28a745;
+            color: #fff;
+            text-decoration: none;
+            border-radius: 5px;
+            font-weight: 500;
+            font-size: 14px;
+            transition: background 0.2s, box-shadow 0.2s, transform 0.15s;
+            box-shadow: none;
+        }
+        
+        .empty-state .create-btn:hover {
+            background: #218838;
+            transform: translateY(-1px);
+            box-shadow: 0 2px 5px rgba(0,0,0,0.13);
+        }
+        
+        @media (max-width: 768px) {
+            .container {
+                padding: 15px;
+                margin: 7px;
+            }
+            
+            .header h1 {
+                font-size: 1.3em;
+            }
+            
+            .nav-links {
+                flex-direction: column;
+                align-items: center;
+                gap: 7px;
+            }
+            
+            .votings-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .voting-actions {
+                justify-content: center;
+            }
+            
+            .action-btn, .view-btn, .results-btn, .edit-btn, .delete-btn {
+                width: 100%;
+                max-width: 180px;
+                padding: 10px 12px;
+            }
+            
+            .empty-state .create-btn {
+                width: 100%;
+                max-width: 220px;
+                margin: 0 auto;
+                justify-content: center;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>📋 Мои голосования</h1>
+        </div>
+        
+        <div class="nav-links">
+            <a href="{{ url_for('index') }}" class="nav-link">
+                <i class="bi bi-house"></i>
+                Главная
+            </a>
+            <a href="{{ url_for('voting.index') }}" class="nav-link">
+                <i class="bi bi-check2-square"></i>
+                Голосования
+            </a>
+            <a href="{{ url_for('voting.create_voting') }}" class="nav-link create-btn">
+                <i class="bi bi-plus-circle"></i>
+                Создать голосование
+            </a>
+            <a href="{{ url_for('voting.my_properties') }}" class="nav-link">
+                <i class="bi bi-house-door"></i>
+                Моя собственность
+            </a>
+            <a href="{{ url_for('profile') }}" class="nav-link">
+                <i class="bi bi-person"></i>
+                Профиль
+            </a>
+            <a href="{{ url_for('auth.logout') }}" class="nav-link logout-btn">
+                <i class="bi bi-box-arrow-right"></i>
+                Выйти
+            </a>
+        </div>
+
+        <div class="stats-card">
+            <h3>📊 Статистика моих голосований</h3>
+            <div class="count">{{ votings.total }}</div>
+            <p>созданных голосований | Страница {{ votings.page }} из {{ votings.pages }}</p>
+        </div>
+
+        {% if votings.items %}
+            <div class="votings-grid">
+                {% for voting in votings.items %}
+                    <div class="voting-card">
+                        <h2 class="voting-title">
+                            <a href="{{ url_for('voting.view_voting', voting_id=voting.id) }}">{{ voting.title }}</a>
+                        </h2>
+                        
+                        {% if voting.is_open() %}
+                            <span class="voting-status status-active">
+                                <i class="bi bi-check-circle"></i>
+                                Активно
+                            </span>
+                        {% elif voting.start_date > datetime.utcnow() %}
+                            <span class="voting-status status-upcoming">
+                                <i class="bi bi-clock"></i>
+                                Скоро начнется
+                            </span>
+                        {% else %}
+                            <span class="voting-status status-ended">
+                                <i class="bi bi-x-circle"></i>
+                                Завершено
+                            </span>
+                        {% endif %}
+                        
+                        <div class="voting-meta">
+                            <i class="bi bi-calendar3"></i>
+                            Создано: {{ voting.created_at.strftime('%d.%m.%Y в %H:%M') }} |
+                            <i class="bi bi-clock-history"></i>
+                            Период: {{ voting.start_date.strftime('%d.%m.%Y %H:%M') }} - {{ voting.end_date.strftime('%d.%m.%Y %H:%M') }}
+                        </div>
+                        
+                        <div class="voting-description">
+                            <strong>Вопрос:</strong> {{ voting.question }}
+                            <br>
+                            <strong>Описание:</strong> {{ voting.description[:200] }}{% if voting.description|length > 200 %}...{% endif %}
+                        </div>
+                        
+                        <div class="voting-actions">
+                            <a href="{{ url_for('voting.view_voting', voting_id=voting.id) }}" class="action-btn view-btn">
+                                <i class="bi bi-eye"></i>
+                                Просмотр
+                            </a>
+                            <a href="{{ url_for('voting.results', voting_id=voting.id) }}" class="action-btn results-btn">
+                                <i class="bi bi-bar-chart"></i>
+                                Результаты
+                            </a>
+                            {% if not voting.is_open() %}
+                                <a href="{{ url_for('voting.edit_voting', voting_id=voting.id) }}" class="action-btn edit-btn">
+                                    <i class="bi bi-pencil"></i>
+                                    Редактировать
+                                </a>
+                                <a href="#" onclick="deleteVoting({{ voting.id }})" class="action-btn delete-btn">
+                                    <i class="bi bi-trash"></i>
+                                    Удалить
+                                </a>
+                            {% endif %}
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+
+            <!-- Пагинация -->
+            {% if votings.pages > 1 %}
+                <div class="pagination">
+                    {% if votings.has_prev %}
+                        <a href="{{ url_for('voting.my_votings', page=votings.prev_num) }}">
+                            <i class="bi bi-chevron-left"></i>
+                            Предыдущая
+                        </a>
+                    {% endif %}
+                    
+                    {% for page_num in votings.iter_pages() %}
+                        {% if page_num %}
+                            {% if page_num != votings.page %}
+                                <a href="{{ url_for('voting.my_votings', page=page_num) }}">{{ page_num }}</a>
+                            {% else %}
+                                <span class="current">{{ page_num }}</span>
+                            {% endif %}
+                        {% else %}
+                            <span>...</span>
+                        {% endif %}
+                    {% endfor %}
+                    
+                    {% if votings.has_next %}
+                        <a href="{{ url_for('voting.my_votings', page=votings.next_num) }}">
+                            Следующая
+                            <i class="bi bi-chevron-right"></i>
+                        </a>
+                    {% endif %}
+                </div>
+            {% endif %}
+        {% else %}
+            <div class="empty-state">
+                <div class="icon">📋</div>
+                <h3>📭 У вас пока нет созданных голосований</h3>
+                <p>Создайте первое голосование для общего собрания собственников!</p>
+                <a href="{{ url_for('voting.create_voting') }}" class="create-btn">
+                    <i class="bi bi-plus-lg"></i>
+                    Создать первое голосование
+                </a>
+            </div>
+        {% endif %}
+    </div>
+
+    <script>
+        function deleteVoting(votingId) {
+            if (confirm('Вы уверены, что хотите удалить это голосование? Это действие нельзя отменить.')) {
+                // Создаем форму для отправки POST запроса
+                const form = document.createElement('form');
+                form.method = 'POST';
+                form.action = '/voting/delete_voting/' + votingId;
+                document.body.appendChild(form);
+                form.submit();
+            }
+        }
+    </script>
+</body>
+</html> 

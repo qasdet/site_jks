@@ -1,0 +1,249 @@
+{% extends 'admin/base.html' %}
+{% block title %}Дашборд | Админ-панель{% endblock %}
+{% block page_title %}Дашборд{% endblock %}
+{% block content %}
+<!-- Статистика -->
+<div class="row g-4 mb-4">
+  <div class="col-md-2">
+    <div class="card text-bg-primary h-100">
+      <div class="card-body d-flex flex-column">
+        <h5 class="card-title">
+          <i class="bi bi-people"></i>
+          Пользователи
+        </h5>
+        <p class="card-text display-6">{{ user_count }}</p>
+        <small class="text-light">+{{ new_users_week }} за неделю</small>
+        <a href="{{ url_for('admin.users') }}" class="btn btn-light btn-sm mt-auto w-100">
+          <i class="bi bi-gear"></i>
+          Управлять
+        </a>
+      </div>
+    </div>
+  </div>
+  <div class="col-md-2">
+    <div class="card text-bg-success h-100">
+      <div class="card-body d-flex flex-column">
+        <h5 class="card-title">
+          <i class="bi bi-file-text"></i>
+          Посты блога
+        </h5>
+        <p class="card-text display-6">{{ post_count }}</p>
+        <small class="text-light">+{{ new_posts_week }} за неделю</small>
+        <a href="{{ url_for('admin.posts') }}" class="btn btn-light btn-sm mt-auto w-100">
+          <i class="bi bi-gear"></i>
+          Управлять
+        </a>
+      </div>
+    </div>
+  </div>
+  <div class="col-md-2">
+    <div class="card text-bg-warning h-100">
+      <div class="card-body d-flex flex-column">
+        <h5 class="card-title">
+          <i class="bi bi-chat-dots"></i>
+          Темы форума
+        </h5>
+        <p class="card-text display-6">{{ topic_count }}</p>
+        <small class="text-light">+{{ new_topics_week }} за неделю</small>
+        <a href="{{ url_for('admin.forum_topics') }}" class="btn btn-light btn-sm mt-auto w-100">
+          <i class="bi bi-gear"></i>
+          Управлять
+        </a>
+      </div>
+    </div>
+  </div>
+  <div class="col-md-2">
+    <div class="card text-bg-info h-100">
+      <div class="card-body d-flex flex-column">
+        <h5 class="card-title">
+          <i class="bi bi-chat"></i>
+          Сообщения форума
+        </h5>
+        <p class="card-text display-6">{{ forum_post_count }}</p>
+        <small class="text-light">всего сообщений</small>
+        <a href="{{ url_for('admin.forum_posts') }}" class="btn btn-light btn-sm mt-auto w-100">
+          <i class="bi bi-gear"></i>
+          Управлять
+        </a>
+      </div>
+    </div>
+  </div>
+  <div class="col-md-2">
+    <div class="card text-bg-secondary h-100">
+      <div class="card-body d-flex flex-column">
+        <h5 class="card-title">
+          <i class="bi bi-check2-square"></i>
+          Голосования
+        </h5>
+        <p class="card-text display-6">{{ voting_count }}</p>
+        <small class="text-light">активных голосований</small>
+        <a href="{{ url_for('admin.votings') }}" class="btn btn-light btn-sm mt-auto w-100">
+          <i class="bi bi-gear"></i>
+          Управлять
+        </a>
+      </div>
+    </div>
+  </div>
+  <div class="col-md-2">
+    <div class="card text-bg-dark h-100">
+      <div class="card-body d-flex flex-column">
+        <h5 class="card-title">
+          <i class="bi bi-check-circle"></i>
+          Голоса
+        </h5>
+        <p class="card-text display-6">{{ vote_count }}</p>
+        <small class="text-light">всего голосов</small>
+        <a href="{{ url_for('admin.votes') }}" class="btn btn-light btn-sm mt-auto w-100">
+          <i class="bi bi-gear"></i>
+          Управлять
+        </a>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Дополнительная статистика -->
+<div class="row g-4 mb-4">
+
+</div>
+
+<!-- Последние действия -->
+<div class="row g-4">
+  <div class="col-md-3">
+    <div class="card">
+      <div class="card-header">
+        <h6 class="mb-0">
+          <i class="bi bi-person-plus"></i>
+          Последние пользователи
+        </h6>
+      </div>
+      <div class="card-body">
+        {% for user in recent_users %}
+        <div class="d-flex justify-content-between align-items-center mb-2">
+          <div>
+            <strong>{{ user.username }}</strong>
+            {% if user.is_admin %}
+              <span class="badge bg-danger ms-1">Админ</span>
+            {% endif %}
+            <br>
+            <small class="text-muted">{{ user.email }}</small>
+          </div>
+          <small class="text-muted">{{ user.created_at.strftime('%d.%m') }}</small>
+        </div>
+        {% endfor %}
+      </div>
+    </div>
+  </div>
+  
+  <div class="col-md-3">
+    <div class="card">
+      <div class="card-header">
+        <h6 class="mb-0">
+          <i class="bi bi-file-earmark-text"></i>
+          Последние посты
+        </h6>
+      </div>
+      <div class="card-body">
+        {% for post in recent_posts %}
+        <div class="mb-2">
+          <strong>{{ post.title }}</strong>
+          <br>
+          <small class="text-muted">
+            {{ post.user.username }} • {{ post.created_at.strftime('%d.%m') }}
+          </small>
+        </div>
+        {% endfor %}
+      </div>
+    </div>
+  </div>
+  
+  <div class="col-md-3">
+    <div class="card">
+      <div class="card-header">
+        <h6 class="mb-0">
+          <i class="bi bi-chat-square-text"></i>
+          Последние темы
+        </h6>
+      </div>
+      <div class="card-body">
+        {% for topic in recent_topics %}
+        <div class="mb-2">
+          <strong>{{ topic.title }}</strong>
+          <br>
+          <small class="text-muted">
+            {{ topic.user.username }} • {{ topic.created_at.strftime('%d.%m') }}
+          </small>
+        </div>
+        {% endfor %}
+      </div>
+    </div>
+  </div>
+  
+  <div class="col-md-3">
+    <div class="card">
+      <div class="card-header">
+        <h6 class="mb-0">
+          <i class="bi bi-check2-square"></i>
+          Последние голосования
+        </h6>
+      </div>
+      <div class="card-body">
+        {% for voting in recent_votings %}
+        <div class="mb-2">
+          <strong>{{ voting.title }}</strong>
+          <br>
+          <small class="text-muted">
+            {{ voting.creator.username }} • {{ voting.created_at.strftime('%d.%m') }}
+          </small>
+        </div>
+        {% endfor %}
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Последние личные сообщения -->
+<div class="row g-4 mt-2">
+  <div class="col-md-12">
+    <div class="card">
+      <div class="card-header">
+        <h6 class="mb-0">
+          <i class="bi bi-envelope"></i>
+          Последние личные сообщения
+        </h6>
+      </div>
+      <div class="card-body">
+        <div class="row">
+          {% for message in recent_messages %}
+          <div class="col-md-4 mb-3">
+            <div class="border rounded p-3">
+              <div class="d-flex justify-content-between align-items-start mb-2">
+                <div>
+                  <strong>{{ message.sender.username }}</strong>
+                  <span class="text-muted">→</span>
+                  <strong>{{ message.recipient.username }}</strong>
+                </div>
+                <small class="text-muted">{{ message.sent_at.strftime('%d.%m %H:%M') }}</small>
+              </div>
+              <div class="message-preview">
+                {{ message.content[:80] }}{% if message.content|length > 80 %}...{% endif %}
+              </div>
+              {% if not message.is_read %}
+                <span class="badge bg-warning mt-1">
+                  <i class="bi bi-clock"></i> Не прочитано
+                </span>
+              {% endif %}
+            </div>
+          </div>
+          {% else %}
+          <div class="col-12 text-center text-muted">
+            <i class="bi bi-inbox fs-1"></i>
+            <p class="mt-2">Личных сообщений пока нет</p>
+          </div>
+          {% endfor %}
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %} 
